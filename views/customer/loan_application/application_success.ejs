@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../../partials/head', { pageTitle: 'Application Submitted | Rupya AI' }) %>
+</head>
+
+<body class="bg-light">
+
+    <%- include('../../partials/navbar') %>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm text-center">
+                    <div class="card-body py-5">
+                        <div class="mb-4">
+                            <div class="display-1 text-success">✓</div>
+                        </div>
+                        <h2 class="mb-3">Application Submitted Successfully</h2>
+                        <p class="text-muted mb-4">Your loan application is now in the underwriting pipeline.</p>
+
+                        <div class="row gx-3 gy-3 mb-4">
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <small class="text-muted">Application ID</small>
+                                    <div class="h5 mt-2"><%= applicationResult.applicationId %></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <small class="text-muted">Status</small>
+                                    <div class="h5 mt-2"><%= applicationResult.status %></div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <small class="text-muted">Next Step</small>
+                                    <div class="h5 mt-2"><%= applicationResult.nextSteps[0] %></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 text-start">
+                            <h5>Next Steps</h5>
+                            <ol class="ps-3">
+                                <% applicationResult.nextSteps.forEach(step => { %>
+                                    <li><%= step %></li>
+                                <% }) %>
+                            </ol>
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="/customer/loan-status" class="btn btn-primary">Track Application</a>
+                            <a href="/customer/dashboard" class="btn btn-outline-secondary">Return Dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../../partials/footer') %>
+
+    <%- include('../../partials/scripts') %>
+
+</body>
+
+</html>

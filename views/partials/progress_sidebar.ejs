@@ -1,0 +1,26 @@
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5>Application Progress</h5>
+    </div>
+
+    <div class="card-body">
+        <p class="<%= currentStep > 1 ? 'text-success' : '' %>">
+            <%= currentStep > 1 ? '✔' : '✔' %> Personal Information
+        </p>
+        <p class="<%= currentStep > 2 ? 'text-success' : '' %>">
+            <%= currentStep > 2 ? '✔' : (currentStep === 2 ? '' : '○') %> <%= currentStep === 2 ? '<strong>Step 2</strong>' : '' %> Loan Details
+        </p>
+        <p class="<%= currentStep > 3 ? 'text-success' : '' %>">
+            <%= currentStep > 3 ? '✔' : (currentStep === 3 ? '' : '○') %> <%= currentStep === 3 ? '<strong>Step 3</strong>' : '' %> Employment
+        </p>
+        <p class="<%= currentStep > 4 ? 'text-success' : '' %>">
+            <%= currentStep > 4 ? '✔' : (currentStep === 4 ? '' : '○') %> <%= currentStep === 4 ? '<strong>Step 4</strong>' : '' %> Financial Information
+        </p>
+        <p class="<%= currentStep > 5 ? 'text-success' : '' %>">
+            <%= currentStep > 5 ? '✔' : (currentStep === 5 ? '' : '○') %> <%= currentStep === 5 ? '<strong>Step 5</strong>' : '' %> Credit Information
+        </p>
+        <p>
+            <%= currentStep === 6 ? '<strong>Step 6</strong>' : '○' %> Review & Submit
+        </p>
+    </div>
+</div>

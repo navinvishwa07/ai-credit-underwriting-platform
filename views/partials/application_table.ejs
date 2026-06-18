@@ -1,0 +1,32 @@
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Application ID</th>
+            <th>Loan Type</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% applications.forEach(application => { %>
+            <tr>
+                <td><%= application.applicationID %></td>
+                <td><%= application.loanType %></td>
+                <td>₹<%= application.amount %></td>
+                <td><%= application.applicationDate %></td>
+                <td>
+                    <% if (application.status === 'Approved') { %>
+                        <span class="badge bg-success"><%= application.status %></span>
+                    <% } else if (application.status === 'Rejected') { %>
+                        <span class="badge bg-danger"><%= application.status %></span>
+                    <% } else if (application.status === 'Under Review') { %>
+                        <span class="badge bg-warning"><%= application.status %></span>
+                    <% } else { %>
+                        <span class="badge bg-secondary"><%= application.status %></span>
+                    <% } %>
+                </td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>

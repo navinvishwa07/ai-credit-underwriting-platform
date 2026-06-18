@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../../partials/head', { pageTitle: 'Loan Application | Step 4' }) %>
+</head>
+
+<body class="bg-light">
+
+    <%- include('../../partials/navbar') %>
+
+    <div class="container mt-5">
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <%- include('../../partials/progress_sidebar', { currentStep: 4 }) %>
+            </div>
+
+            <div class="col-md-9">
+
+                <div class="card shadow">
+
+                    <div class="card-header">
+
+                        <h3>Step 4 - Financial Information</h3>
+
+                        <small class="text-muted">
+                            This page determines whether the customer can realistically repay the loan.
+                        </small>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <form action="/customer/apply-loan/step5" method="GET">
+
+                            <div class="row">
+
+                                <div class="col-lg-8">
+
+                                    <div class="mb-4">
+                                        <h5 class="mb-3">Income</h5>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Monthly Gross Income *</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="monthlyGrossIncome" required>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Monthly Net Income *</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="monthlyNetIncome" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Other Monthly Income</label>
+                                            <input type="number" min="0" class="form-control border border-dark" name="otherMonthlyIncome">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Income Source</label>
+                                            <select class="form-select border border-dark" name="incomeSource">
+                                                <option value="">Select Income Source</option>
+                                                <option>Salary</option>
+                                                <option>Business</option>
+                                                <option>Rental Income</option>
+                                                <option>Investments</option>
+                                                <option>Pension</option>
+                                                <option>Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h5 class="mb-3">Existing Financial Obligations</h5>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Current Monthly EMI *</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="currentMonthlyEmi" required>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Number of Active Loans *</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="activeLoans" required>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Total Outstanding Loan Amount *</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="outstandingLoanAmount" required>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Credit Card Outstanding Balance</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="creditCardBalance">
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Monthly Household Expenses *</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="householdExpenses" required>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Monthly Rent (if applicable)</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="monthlyRent">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h5 class="mb-3">Assets</h5>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Savings Account Balance</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="savingsBalance">
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Fixed Deposits</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="fixedDeposits">
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Investments</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="investments">
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Property Ownership</label>
+                                                <select class="form-select border border-dark" name="propertyOwnership">
+                                                    <option value="">Select</option>
+                                                    <option>Yes</option>
+                                                    <option>No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Vehicle Ownership</label>
+                                            <select class="form-select border border-dark" name="vehicleOwnership">
+                                                <option value="">Select</option>
+                                                <option>Yes</option>
+                                                <option>No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <h5 class="mb-3">Banking Information</h5>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Primary Bank *</label>
+                                                <input type="text" class="form-control border border-dark" name="primaryBank" required>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Account Type *</label>
+                                                <select class="form-select border border-dark" name="accountType" required>
+                                                    <option value="">Select Account Type</option>
+                                                    <option>Savings</option>
+                                                    <option>Current</option>
+                                                    <option>Salary</option>
+                                                    <option>Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Salary Account *</label>
+                                                <select class="form-select border border-dark" name="salaryAccount" required>
+                                                    <option value="">Select</option>
+                                                    <option>Yes</option>
+                                                    <option>No</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Years with Bank *</label>
+                                                <input type="number" min="0" class="form-control border border-dark" name="yearsWithBank" required>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-lg-4">
+                                    <div class="card border-secondary shadow-sm mb-4">
+                                        <div class="card-header bg-white">
+                                            <h5 class="mb-0">Live Summary</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <p class="text-muted mb-1">Loan Amount</p>
+                                                <h4 class="mb-0">₹5,00,000</h4>
+                                            </div>
+                                            <div class="mb-3">
+                                                <p class="text-muted mb-1">Monthly Income</p>
+                                                <h5 class="mb-0">₹80,000</h5>
+                                            </div>
+                                            <div class="mb-3">
+                                                <p class="text-muted mb-1">Current EMI</p>
+                                                <h5 class="mb-0">₹15,000</h5>
+                                            </div>
+                                            <div class="mb-3">
+                                                <p class="text-muted mb-1">Estimated EMI</p>
+                                                <h5 class="mb-0">₹10,800</h5>
+                                            </div>
+                                            <div>
+                                                <p class="text-muted mb-1">Debt-to-Income Ratio</p>
+                                                <h5 class="mb-0">31%</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+
+                                <a href="/customer/apply-loan/step3" class="btn btn-secondary">
+                                    Previous
+                                </a>
+
+                                <div>
+                                    <button type="submit" class="btn btn-outline-secondary me-2">
+                                        Save Draft
+                                    </button>
+
+                                    <button type="submit" class="btn btn-primary">
+                                        Save & Next
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <%- include('../../partials/footer') %>
+
+    <%- include('../../partials/scripts') %>
+
+</body>
+
+</html>

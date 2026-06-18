@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../../partials/head', { pageTitle: 'Loan Application | Step 1' }) %>
+</head>
+
+<body class="bg-light">
+
+    <%- include('../../partials/navbar') %>
+
+    <div class="container mt-5">
+
+        <div class="row">
+            <div class="col-md-3">
+                <%- include('../../partials/progress_sidebar', { currentStep: 1 }) %>
+            </div>
+
+            <div class="col-md-9">
+
+                <div class="card shadow">
+
+                    <div class="card-header">
+                        <h3>Step 1 - Personal Information</h3>
+                        <small class="text-muted">
+                            Please provide your personal details.
+                        </small>
+                    </div>
+
+                    <div class="card-body">
+
+                        <form action="/customer/apply-loan/step2" method="GET">
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">First Name *</label>
+                                    <input type="text" minlength="2" maxlength="30" class="form-control border border-dark" name="firstName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Last Name *</label>
+                                    <input type="text" minlength="2" maxlength="30" class="form-control border border-dark" name="lastName" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Date of Birth *</label>
+                                    <input type="date" class="form-control border border-dark" name="dob" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Gender *</label>
+                                    <select class="form-select border border-dark" name="gender" required>
+                                        <option value="">Select Gender</option>
+                                        <option>Male</option>
+                                        <option>Female</option>
+                                        <option>Other</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Mobile Number *</label>
+                                    <input type="tel" minlength="10" maxlength="10" class="form-control border border-dark" name="mobile" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control border border-dark" name="email" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">PAN Number *</label>
+                                    <input type="text" maxlength="10" minlength="10" pattern="[A-Z]{3}[PCFHATBLJG][A-Z][0-9]{4}[A-Z]" class="form-control border border-dark" name="pan" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Aadhaar Number *</label>
+                                    <input type="text" maxlength="12" minlength="12" class="form-control border border-dark" name="aadhaar" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Residential Address *</label>
+                                <textarea class="form-control border border-dark" rows="3" name="address" required></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">City *</label>
+                                    <input type="text" class="form-control border border-dark" name="city" minlength="2" maxlength="50" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">State *</label>
+                                    <input type="text" class="form-control border border-dark" name="state" list="stateList" minlength="2" maxlength="50" required>
+                                    <datalist id="stateList">
+                                        <option value="Andhra Pradesh"></option>
+                                        <option value="Arunachal Pradesh"></option>
+                                        <option value="Assam"></option>
+                                        <option value="Bihar"></option>
+                                        <option value="Chhattisgarh"></option>
+                                        <option value="Goa"></option>
+                                        <option value="Gujarat"></option>
+                                        <option value="Haryana"></option>
+                                        <option value="Himachal Pradesh"></option>
+                                        <option value="Jharkhand"></option>
+                                        <option value="Karnataka"></option>
+                                        <option value="Kerala"></option>
+                                        <option value="Madhya Pradesh"></option>
+                                        <option value="Maharashtra"></option>
+                                        <option value="Manipur"></option>
+                                        <option value="Meghalaya"></option>
+                                        <option value="Mizoram"></option>
+                                        <option value="Nagaland"></option>
+                                        <option value="Odisha"></option>
+                                        <option value="Punjab"></option>
+                                        <option value="Rajasthan"></option>
+                                        <option value="Sikkim"></option>
+                                        <option value="Tamil Nadu"></option>
+                                        <option value="Telangana"></option>
+                                        <option value="Tripura"></option>
+                                        <option value="Uttar Pradesh"></option>
+                                        <option value="Uttarakhand"></option>
+                                        <option value="West Bengal"></option>
+                                        <option value="Andaman and Nicobar Islands"></option>
+                                        <option value="Chandigarh"></option>
+                                        <option value="Dadra and Nagar Haveli and Daman and Diu"></option>
+                                        <option value="Delhi"></option>
+                                        <option value="Jammu and Kashmir"></option>
+                                        <option value="Ladakh"></option>
+                                        <option value="Lakshadweep"></option>
+                                        <option value="Puducherry"></option>
+                                    </datalist>
+                                </div>
+                                <div class="col-md-4 mb-4">
+                                    <label class="form-label">PIN Code *</label>
+                                    <input type="text" class="form-control border border-dark" name="pincode" minlength="6" maxlength="6" required>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-secondary" disabled>
+                                    Previous
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    Save & Next
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <%- include('../../partials/footer') %>
+
+    <%- include('../../partials/scripts') %>
+
+</body>
+
+</html>

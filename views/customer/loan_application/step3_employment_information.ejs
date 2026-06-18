@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../../partials/head', { pageTitle: 'Loan Application | Step 3' }) %>
+</head>
+
+<body class="bg-light">
+
+    <%- include('../../partials/navbar') %>
+
+    <div class="container mt-5">
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <%- include('../../partials/progress_sidebar', { currentStep: 3 }) %>
+            </div>
+
+            <div class="col-md-9">
+
+                <div class="card shadow">
+
+                    <div class="card-header">
+                        <h3>Step 3 - Employment Information</h3>
+                        <small class="text-muted">
+                            Tell us about your employment and income.
+                        </small>
+                    </div>
+
+                    <div class="card-body">
+
+                        <form action="/customer/apply-loan/step4" method="GET">
+
+                            <div class="mb-3">
+                                <label class="form-label">Employment Status *</label>
+                                <select class="form-select border border-dark" name="employmentStatus" required>
+                                    <option value="">Select Employment Status</option>
+                                    <option>Salaried</option>
+                                    <option>Self Employed</option>
+                                    <option>Business Owner</option>
+                                    <option>Freelancer</option>
+                                    <option>Retired</option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Employer / Company Name *</label>
+                                    <input type="text" minlength="2" maxlength="100" class="form-control border border-dark" name="companyName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Job Title *</label>
+                                    <input type="text" minlength="5" maxlength="100" class="form-control border border-dark" name="jobTitle" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Industry *</label>
+                                    <input type="text" minlength="5" maxlength="100" class="form-control border border-dark" name="industry" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Employment Type *</label>
+                                    <select class="form-select border border-dark" name="employmentType" required>
+                                        <option value="">Select Type</option>
+                                        <option>Permanent</option>
+                                        <option>Contract</option>
+                                        <option>Part-Time</option>
+                                        <option>Temporary</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Years with Current Employer *</label>
+                                    <input type="number" minlength="0" maxlength="50" class="form-control border border-dark" name="yearsCurrentEmployer" min="0" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Total Years of Work Experience *</label>
+                                    <input type="number" class="form-control border border-dark" name="totalExperience" minlength="0" maxlength="50" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Monthly Gross Income (₹) *</label>
+                                    <input type="number" class="form-control border border-dark" name="monthlyIncome" minlength="10000" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Monthly Net Income (₹) *</label>
+                                    <input type="number" class="form-control border border-dark" name="netIncome" minlength="1000" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Salary Credit Bank *</label>
+                                <input type="text" class="form-control border border-dark" name="salaryBank" required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Official Work Email (Optional)</label>
+                                <input type="email" class="form-control border border-dark" name="workEmail">
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/customer/apply-loan/step2" class="btn btn-secondary">
+                                    Previous
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    Save & Next
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <%- include('../../partials/footer') %>
+
+    <%- include('../../partials/scripts') %>
+
+</body>
+
+</html>

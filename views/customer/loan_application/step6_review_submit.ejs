@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../../partials/head', { pageTitle: 'Loan Application | Step 6' }) %>
+</head>
+
+<body class="bg-light">
+
+    <%- include('../../partials/navbar') %>
+
+    <div class="container mt-5">
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <%- include('../../partials/progress_sidebar', { currentStep: 6 }) %>
+            </div>
+
+            <div class="col-md-9">
+
+                <div class="card shadow">
+
+                    <div class="card-header">
+
+                        <h3>Step 6 - Review & Submit</h3>
+
+                        <small class="text-muted">
+                            Verify the information below before submitting your application.
+                        </small>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <form action="/customer/apply-loan/success" method="GET">
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">Personal Information</h5>
+                                            <a href="/customer/apply-loan/step1" class="text-decoration-none">Edit</a>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-2"><strong>Name:</strong> <%= applicationReview.personal.name %></p>
+                                            <p class="mb-2"><strong>DOB:</strong> <%= applicationReview.personal.dob %></p>
+                                            <p class="mb-2"><strong>PAN:</strong> <%= applicationReview.personal.pan %></p>
+                                            <p class="mb-2"><strong>Email:</strong> <%= applicationReview.personal.email %></p>
+                                            <p class="mb-2"><strong>Phone:</strong> <%= applicationReview.personal.phone %></p>
+                                            <p class="mb-2"><strong>Address:</strong> <%= applicationReview.personal.address %></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">Loan Details</h5>
+                                            <a href="/customer/apply-loan/step2" class="text-decoration-none">Edit</a>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-2"><strong>Loan Amount:</strong> ₹<%= applicationReview.loan.amount %></p>
+                                            <p class="mb-2"><strong>Loan Type:</strong> <%= applicationReview.loan.type %></p>
+                                            <p class="mb-2"><strong>Purpose:</strong> <%= applicationReview.loan.purpose %></p>
+                                            <p class="mb-2"><strong>Tenure:</strong> <%= applicationReview.loan.tenure %> months</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">Employment</h5>
+                                            <a href="/customer/apply-loan/step3" class="text-decoration-none">Edit</a>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-2"><strong>Employer:</strong> <%= applicationReview.employment.employer %></p>
+                                            <p class="mb-2"><strong>Monthly Income:</strong> ₹<%= applicationReview.employment.monthlyIncome %></p>
+                                            <p class="mb-2"><strong>Experience:</strong> <%= applicationReview.employment.experience %> years</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card shadow-sm">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">Financial Information</h5>
+                                            <a href="/customer/apply-loan/step4" class="text-decoration-none">Edit</a>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-2"><strong>Current EMI:</strong> ₹<%= applicationReview.financial.currentEmi %></p>
+                                            <p class="mb-2"><strong>Outstanding Loans:</strong> ₹<%= applicationReview.financial.outstandingLoans %></p>
+                                            <p class="mb-2"><strong>Savings:</strong> ₹<%= applicationReview.financial.savings %></p>
+                                            <p class="mb-2"><strong>Assets:</strong> <%= applicationReview.financial.assets %></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-12">
+                                    <div class="card shadow-sm">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">Credit Information</h5>
+                                            <a href="/customer/apply-loan/step5" class="text-decoration-none">Edit</a>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-2"><strong>Credit Cards:</strong> <%= applicationReview.credit.cards %></p>
+                                            <p class="mb-2"><strong>Defaults:</strong> <%= applicationReview.credit.defaults %></p>
+                                            <p class="mb-2"><strong>Consent:</strong> <%= applicationReview.credit.consent %></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Declarations</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="accuracyDeclaration" name="accuracyDeclaration" required>
+                                        <label class="form-check-label" for="accuracyDeclaration">
+                                            I certify all information provided is accurate.
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="privacyDeclaration" name="privacyDeclaration" required>
+                                        <label class="form-check-label" for="privacyDeclaration">
+                                            I agree to the privacy policy.
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="verificationDeclaration" name="verificationDeclaration" required>
+                                        <label class="form-check-label" for="verificationDeclaration">
+                                            I authorize verification of my documents.
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/customer/apply-loan/step5" class="btn btn-secondary">
+                                    Previous
+                                </a>
+                                <div>
+                                    <button type="submit" class="btn btn-outline-secondary me-2">
+                                        Save Draft
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        Submit Application
+                                    </button>
+                                </div>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <%- include('../../partials/footer') %>
+
+    <%- include('../../partials/scripts') %>
+
+</body>
+
+</html>

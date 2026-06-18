@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../../partials/head', { pageTitle: 'Loan Application | Step 2' }) %>
+</head>
+
+<body class="bg-light">
+
+    <%- include('../../partials/navbar') %>
+
+    <div class="container mt-5">
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <%- include('../../partials/progress_sidebar', { currentStep: 2 }) %>
+            </div>
+
+            <div class="col-md-9">
+
+                <div class="card shadow">
+
+                    <div class="card-header">
+                        <h3>Step 2 - Loan Details</h3>
+                        <small class="text-muted">
+                            Provide information about the loan you wish to apply for.
+                        </small>
+                    </div>
+
+                    <div class="card-body">
+
+                        <form action="/customer/apply-loan/step3" method="GET">
+
+                            <div class="mb-3">
+                                <label class="form-label">Loan Type *</label>
+                                <select class="form-select border border-dark" name="loanType" required>
+                                    <option value="">Select Loan Type</option>
+                                    <option>Personal Loan</option>
+                                    <option>Home Loan</option>
+                                    <option>Vehicle Loan</option>
+                                    <option>Education Loan</option>
+                                    <option>Business Loan</option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Loan Amount Requested (₹) *</label>
+                                    <input type="number" minlength="10000" maxlength="1000000" class="form-control border border-dark" name="loanAmount" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Loan Tenure (Months) *</label>
+                                    <input type="number" class="form-control border border-dark" name="loanTenure" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Purpose of Loan *</label>
+                                <textarea class="form-control border border-dark" rows="3" name="loanPurpose" required></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Preferred EMI Date *</label>
+                                    <select class="form-select border border-dark" name="emiDate" required>
+                                        <option value="">Select Date</option>
+                                        <option>1st of Every Month</option>
+                                        <option>5th of Every Month</option>
+                                        <option>10th of Every Month</option>
+                                        <option>15th of Every Month</option>
+                                        <option>20th of Every Month</option>
+                                        <option>25th of Every Month</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Repayment Method *</label>
+                                    <select class="form-select border border-dark" name="repaymentMethod" required>
+                                        <option value="">Select Method</option>
+                                        <option>Auto Debit</option>
+                                        <option>Net Banking</option>
+                                        <option>UPI AutoPay</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Do you have a Co-Applicant? *</label>
+                                <select class="form-select border border-dark" name="coApplicant" required>
+                                    <option value="">Select</option>
+                                    <option>No</option>
+                                    <option>Yes</option>
+                                </select>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/customer/apply-loan/step1" class="btn btn-secondary">
+                                    Previous
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    Save & Next
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <%- include('../../partials/footer') %>
+
+    <%- include('../../partials/scripts') %>
+
+</body>
+
+</html>

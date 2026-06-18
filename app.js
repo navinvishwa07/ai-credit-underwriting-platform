@@ -28,7 +28,7 @@ app.get('/customer/dashboard', (req, res) => {
         }
     ];
 
-    res.render('customer_dashboard', {
+    res.render('customer/customer_dashboard', {
         customer,
         loanSummary,
         recentApplications
@@ -59,7 +59,7 @@ app.get('/customer/profile', (req, res) => {
         accountCreated: new Date('2024-01-12')
     };
 
-    res.render('profile', {
+    res.render('customer/customer_profile', {
         customer
     });
 
@@ -89,7 +89,7 @@ app.get('/customer/loan-status', (req, res) => {
         }
     ];
 
-    res.render('application_tracker', {
+    res.render('customer/application_tracker', {
         applications
     });
 
@@ -98,30 +98,30 @@ app.get('/customer/loan-status', (req, res) => {
 
 app.get('/customer/apply-loan', (req, res) => {
 
-    res.render('loan_application/step1_personalInfo');
+    res.render('customer/loan_application/step1_personal_information');
 
 });
 
 app.get('/customer/apply-loan/step2', (req, res) => {
 
-    res.render('loan_application/step2_loanDetails');
+    res.render('customer/loan_application/step2_loan_details');
 
 });
 
 
 app.get('/customer/apply-loan/step3', (req, res) => {
 
-    res.render('loan_application/step3_employmentDetails');
+    res.render('customer/loan_application/step3_employment_information');
 });
 
 app.get('/customer/apply-loan/step4', (req, res) => {
 
-    res.render('loan_application/step4_financialInformation');
+    res.render('customer/loan_application/step4_financial_information');
 });
 
 app.get('/customer/apply-loan/step5', (req, res) => {
 
-    res.render('loan_application/step5_creditInformation');
+    res.render('customer/loan_application/step5_credit_information');
 });
 
 app.get('/customer/apply-loan/step6', (req, res) => {
@@ -159,7 +159,7 @@ app.get('/customer/apply-loan/step6', (req, res) => {
         }
     };
 
-    res.render('loan_application/step6_reviewSubmit', {
+    res.render('customer/loan_application/step6_review_submit', {
         applicationReview
     });
 });
@@ -177,7 +177,7 @@ app.get('/customer/apply-loan/success', (req, res) => {
         ]
     };
 
-    res.render('application_success', {
+    res.render('customer/loan_application/application_success', {
         applicationResult
     });
 });

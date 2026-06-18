@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head', { pageTitle: 'Customer Profile | Rupya AI' }) %>
+    </head>
+
+    <body class="bg-light">
+
+        <%- include('../partials/navbar') %>
+
+        <div class="container mt-5">
+
+            <div class="d-flex align-items-start justify-content-between mb-4">
+                <div>
+                    <h1 class="h3 mb-1">Profile</h1>
+                    <p class="text-muted mb-0">Review your personal and contact details.</p>
+                </div>
+                <div>
+                    <a href="/customer/dashboard" class="btn btn-outline-secondary me-2">Dashboard</a>
+                    <a href="#" class="btn btn-primary">Edit Profile</a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Basic Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2"><strong>Name:</strong> <%= customer.name %></p>
+                            <p class="mb-2"><strong>Date of Birth:</strong> <%= customer.dob.toDateString() %></p>
+                            <p class="mb-2"><strong>Gender:</strong> <%= customer.gender %></p>
+                            <p class="mb-2"><strong>Account Created:</strong> <%= customer.accountCreated.toDateString() %></p>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <h5 class="mb-0">Employment</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2"><strong>Occupation:</strong> <%= customer.occupation %></p>
+                            <p class="mb-2"><strong>Employer:</strong> <%= customer.employer %></p>
+                            <p class="mb-2"><strong>Annual Income:</strong> ₹<%= customer.annualIncome %></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Contact & KYC</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <p class="mb-1"><strong>Email:</strong></p>
+                                    <p class="text-secondary"><%= customer.email %></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <p class="mb-1"><strong>Phone:</strong></p>
+                                    <p class="text-secondary"><%= customer.phone %></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <p class="mb-1"><strong>PAN:</strong></p>
+                                    <p class="text-secondary"><%= customer.pan %></p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <p class="mb-1"><strong>Aadhaar:</strong></p>
+                                    <p class="text-secondary"><%= customer.aadhaar %></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Address</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2"><strong>Address:</strong> <%= customer.address %></p>
+                            <p class="mb-2"><strong>City:</strong> <%= customer.city %></p>
+                            <p class="mb-2"><strong>State:</strong> <%= customer.state %></p>
+                            <p class="mb-2"><strong>PIN Code:</strong> <%= customer.pincode %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+
+        <%- include('../partials/scripts') %>
+
+    </body>
+</html>
