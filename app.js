@@ -94,29 +94,29 @@ app.get('/customer/loan-status', (req, res) => {
 
 app.get('/customer/apply-loan', (req, res) => {
 
-    res.render('customer/loan_application/step1_personalInfo');
+    res.render('loan_application/step1_personalInfo');
 
 });
 
 app.get('/customer/apply-loan/step2', (req, res) => {
 
-    res.render('customer/loan_application/step2_loanDetails');
+    res.render('loan_application/step2_loanDetails');
 
 });
 
 app.get('/customer/apply-loan/step3', (req, res) => {
 
-    res.render('customer/loan_application/step3_employmentDetails');
+    res.render('loan_application/step3_employmentDetails');
 });
 
 app.get('/customer/apply-loan/step4', (req, res) => {
 
-    res.render('customer/loan_application/step4_financialInformation');
+    res.render('loan_application/step4_financialInformation');
 });
 
 app.get('/customer/apply-loan/step5', (req, res) => {
 
-    res.render('customer/loan_application/step5_creditInformation');
+    res.render('loan_application/step5_creditInformation');
 });
 
 app.get('/customer/apply-loan/step6', (req, res) => {
@@ -154,7 +154,7 @@ app.get('/customer/apply-loan/step6', (req, res) => {
         }
     };
 
-    res.render('customer/loan_application/step6_reviewSubmit', {
+    res.render('loan_application/step6_reviewSubmit', {
         applicationReview
     });
 });
@@ -172,7 +172,7 @@ app.get('/customer/apply-loan/success', (req, res) => {
         ]
     };
 
-    res.render('customer/loan_application/application_success', {
+    res.render('loan_application/application_success', {
         applicationResult
     });
 });
