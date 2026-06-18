@@ -182,6 +182,21 @@ app.get('/customer/apply-loan/success', (req, res) => {
     });
 });
 
+app.get('/customer/application-success', (req, res) => {
+
+    const application = {
+        applicationID: 100245,
+        loanType: 'Personal Loan',
+        amount: 500000,
+        applicationDate: '18 June 2026'
+    };
+
+    res.render('loan_application/application_success', {
+        application
+    });
+
+});
+
 app.listen(3000, () => {
 
     console.log('Server running on port 3000');
