@@ -66,10 +66,6 @@ app.get('/customer/profile', (req, res) => {
 });
 
 
-// ===============================
-// Application Tracker
-// ===============================
-
 app.get('/customer/loan-status', (req, res) => {
 
     const applications = [
@@ -98,30 +94,29 @@ app.get('/customer/loan-status', (req, res) => {
 
 app.get('/customer/apply-loan', (req, res) => {
 
-    res.render('customer/loan_application/step1_personal_information');
+    res.render('customer/loan_application/step1_personalInfo');
 
 });
 
 app.get('/customer/apply-loan/step2', (req, res) => {
 
-    res.render('customer/loan_application/step2_loan_details');
+    res.render('customer/loan_application/step2_loanDetails');
 
 });
 
-
 app.get('/customer/apply-loan/step3', (req, res) => {
 
-    res.render('customer/loan_application/step3_employment_information');
+    res.render('customer/loan_application/step3_employmentDetails');
 });
 
 app.get('/customer/apply-loan/step4', (req, res) => {
 
-    res.render('customer/loan_application/step4_financial_information');
+    res.render('customer/loan_application/step4_financialInformation');
 });
 
 app.get('/customer/apply-loan/step5', (req, res) => {
 
-    res.render('customer/loan_application/step5_credit_information');
+    res.render('customer/loan_application/step5_creditInformation');
 });
 
 app.get('/customer/apply-loan/step6', (req, res) => {
@@ -159,7 +154,7 @@ app.get('/customer/apply-loan/step6', (req, res) => {
         }
     };
 
-    res.render('customer/loan_application/step6_review_submit', {
+    res.render('customer/loan_application/step6_reviewSubmit', {
         applicationReview
     });
 });
