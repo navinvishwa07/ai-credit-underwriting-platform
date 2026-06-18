@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Submitted | Rupya AI</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/customer/dashboard">
+                Rupya AI
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+
+        <div class="card shadow">
+
+            <div class="card-body text-center p-5">
+
+                <h1 class="text-success mb-3">
+                    ✓ Loan Application Submitted Successfully
+                </h1>
+
+                <p class="lead">
+                    Thank you for choosing <strong>Rupya AI</strong>.
+                </p>
+
+                <p>
+                    Your loan application has been received and is currently awaiting underwriting review.
+                    You can track its progress anytime from your dashboard.
+                </p>
+
+                <hr>
+
+                <div class="row mt-4">
+
+                    <div class="col-md-6">
+
+                        <h5>Application ID</h5>
+
+                        <p class="fw-bold">
+                            <%= application.applicationID %>
+                        </p>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <h5>Status</h5>
+
+                        <span class="badge bg-warning text-dark fs-6">
+                            Under Review
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="row mt-4">
+
+                    <div class="col-md-4">
+
+                        <h6>Loan Type</h6>
+
+                        <p>
+                            <%= application.loanType %>
+                        </p>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <h6>Requested Amount</h6>
+
+                        <p>
+                            ₹ <%= application.amount %>
+                        </p>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <h6>Application Date</h6>
+
+                        <p>
+                            <%= application.applicationDate %>
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <h5 class="mb-3">
+                    What happens next?
+                </h5>
+
+                <div class="text-start mx-auto" style="max-width:600px;">
+
+                    <p>✓ Your application has been securely recorded.</p>
+
+                    <p>✓ Our underwriting team will review your details.</p>
+
+                    <p>✓ Additional documents may be requested if required.</p>
+
+                    <p>✓ You'll receive updates on your application status through your dashboard.</p>
+
+                </div>
+
+                <div class="mt-5">
+
+                    <a href="/customer/dashboard" class="btn btn-primary me-3">
+                        Return to Dashboard
+                    </a>
+
+                    <a href="/customer/loan-status" class="btn btn-outline-primary">
+                        Track Application
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
