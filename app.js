@@ -1,5 +1,5 @@
 const express = require('express');
-
+const supabase = require('./config/supabase');
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
