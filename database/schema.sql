@@ -1,4 +1,3 @@
-
 CREATE TABLE gender (
     gender_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     gender_name VARCHAR(20) NOT NULL UNIQUE
@@ -11,7 +10,6 @@ INSERT INTO gender (gender_name) VALUES
 ('Other'),
 ('Prefer Not to Say');
 
--- 2. marital_status
 CREATE TABLE marital_status (
     marital_status_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     marital_status_name VARCHAR(50) NOT NULL UNIQUE
@@ -24,7 +22,6 @@ INSERT INTO marital_status (marital_status_name) VALUES
 ('Widowed'),
 ('Separated');
 
--- 3. education_level
 CREATE TABLE education_level (
     education_level_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     education_level_name VARCHAR(100) NOT NULL UNIQUE
@@ -40,7 +37,6 @@ INSERT INTO education_level (education_level_name) VALUES
 ('Postgraduate'),
 ('Doctorate');
 
--- 4. occupation
 CREATE TABLE occupation (
     occupation_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     occupation_name VARCHAR(100) NOT NULL UNIQUE,
@@ -59,7 +55,6 @@ INSERT INTO occupation (occupation_name, occupation_category) VALUES
 ('Agricultural Worker', 'Agriculture'),
 ('Homemaker', 'Non-Active');
 
--- 5. employment_types
 CREATE TABLE employment_types (
     employment_type_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     employment_type_name VARCHAR(100) NOT NULL UNIQUE
@@ -75,7 +70,6 @@ INSERT INTO employment_types (employment_type_name) VALUES
 ('Retired'),
 ('Student');
 
--- 6. income_types
 CREATE TABLE income_types (
     income_type_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     income_type_name VARCHAR(100) NOT NULL UNIQUE
@@ -90,7 +84,6 @@ INSERT INTO income_types (income_type_name) VALUES
 ('Pension'),
 ('Other');
 
--- 7. account_types
 CREATE TABLE account_types (
     account_type_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     account_type_name VARCHAR(100) NOT NULL UNIQUE
@@ -105,7 +98,6 @@ INSERT INTO account_types (account_type_name) VALUES
 ('Fixed Deposit'),
 ('No Bank Account');
 
--- 8. loan_types
 CREATE TABLE loan_types (
     loan_type_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     loan_type_name VARCHAR(50) NOT NULL UNIQUE
@@ -126,7 +118,6 @@ INSERT INTO loan_types (loan_type_name) VALUES
 ('Wedding Loan'),
 ('Mortgage Loan');
 
--- 9. repayment
 CREATE TABLE repayment (
     repayment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     repayment_mode VARCHAR(100) NOT NULL UNIQUE
@@ -139,7 +130,6 @@ INSERT INTO repayment (repayment_mode) VALUES
 ('Bi-Annual'),
 ('Annual');
 
--- 10. states
 CREATE TABLE states (
     state_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     state_name VARCHAR(100) NOT NULL UNIQUE,
@@ -184,12 +174,6 @@ INSERT INTO states (state_name, state_code) VALUES
 ('Dadra and Nagar Haveli and Daman and Diu', 'DD'),
 ('Lakshadweep', 'LD');
 
-
--- ─────────────────────────────────────────────────────────────
---  CORE TABLES (transactional data)
--- ─────────────────────────────────────────────────────────────
-
--- 11. analysts
 CREATE TABLE analysts (
     analyst_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     supabase_user_id UUID UNIQUE,
@@ -204,7 +188,6 @@ CREATE TABLE analysts (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 12. applicants
 CREATE TABLE applicants (
     applicant_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     supabase_user_id UUID UNIQUE,
@@ -238,7 +221,6 @@ CREATE TABLE applicants (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 13. applications
 CREATE TABLE applications (
     application_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     application_number VARCHAR(20) NOT NULL UNIQUE,
@@ -258,7 +240,6 @@ CREATE TABLE applications (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 14. credit_enquiries
 CREATE TABLE credit_enquiries (
     enquiry_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     application_id BIGINT NOT NULL REFERENCES applications(application_id),
@@ -277,7 +258,6 @@ CREATE TABLE credit_enquiries (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 15. delinquencies
 CREATE TABLE delinquencies (
     delinquency_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     enquiry_id BIGINT NOT NULL REFERENCES credit_enquiries(enquiry_id),
@@ -292,7 +272,6 @@ CREATE TABLE delinquencies (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 16. documents
 CREATE TABLE documents (
     document_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     application_id BIGINT NOT NULL REFERENCES applications(application_id),
@@ -309,7 +288,6 @@ CREATE TABLE documents (
     uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 17. risk_assessments
 CREATE TABLE risk_assessments (
     assessment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     application_id BIGINT NOT NULL UNIQUE REFERENCES applications(application_id),
@@ -326,7 +304,6 @@ CREATE TABLE risk_assessments (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 18. risk_factors
 CREATE TABLE risk_factors (
     factor_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     assessment_id BIGINT NOT NULL REFERENCES risk_assessments(assessment_id),

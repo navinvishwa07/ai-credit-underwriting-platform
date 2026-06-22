@@ -6,19 +6,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 
-// ─────────────────────────────────────────────────────────────
-//  PLACEHOLDER: hard-coded applicant_id until auth is wired in
-// ─────────────────────────────────────────────────────────────
 const CURRENT_APPLICANT_ID = 1;
 
-// ─────────────────────────────────────────────────────────────
-//  CUSTOMER DASHBOARD
-//  Fetches: applicant name, application counts by status, and
-//  the 5 most recent applications.
-// ─────────────────────────────────────────────────────────────
 app.get('/customer/dashboard', async (req, res) => {
     try {
-        // 1. Applicant name
         const { data: applicant, error: applicantError } = await supabase
             .from('applicants')
             .select('first_name, last_name')
@@ -27,7 +18,6 @@ app.get('/customer/dashboard', async (req, res) => {
 
         if (applicantError) throw applicantError;
 
-        // 2. All applications for this applicant (for counts + recent list)
         const { data: applications, error: appsError } = await supabase
             .from('applications')
             .select(`
@@ -43,7 +33,6 @@ app.get('/customer/dashboard', async (req, res) => {
 
         if (appsError) throw appsError;
 
-        // 3. Compute summary counts
         const loanSummary = {
             totalApplications: applications.length,
             underReview: applications.filter(a =>
@@ -53,7 +42,6 @@ app.get('/customer/dashboard', async (req, res) => {
             rejectedApplications: applications.filter(a => a.status === 'Rejected').length
         };
 
-        // 4. Format recent 5 for the table partial
         const recentApplications = applications.slice(0, 5).map(a => ({
             applicationID: a.application_number,
             loanType: a.loan_types?.loan_type_name || '—',
@@ -78,10 +66,6 @@ app.get('/customer/dashboard', async (req, res) => {
     }
 });
 
-// ─────────────────────────────────────────────────────────────
-//  CUSTOMER PROFILE
-//  Fetches applicant row with joined lookup names.
-// ─────────────────────────────────────────────────────────────
 app.get('/customer/profile', async (req, res) => {
     try {
         const { data: row, error } = await supabase
@@ -145,10 +129,6 @@ app.get('/customer/profile', async (req, res) => {
     }
 });
 
-// ─────────────────────────────────────────────────────────────
-//  LOAN STATUS / APPLICATION TRACKER
-//  Fetches all applications for current applicant.
-// ─────────────────────────────────────────────────────────────
 app.get('/customer/loan-status', async (req, res) => {
     try {
         const { data: rows, error } = await supabase
@@ -182,9 +162,6 @@ app.get('/customer/loan-status', async (req, res) => {
     }
 });
 
-// ─────────────────────────────────────────────────────────────
-//  LOAN APPLICATION WIZARD (steps — GET)
-// ─────────────────────────────────────────────────────────────
 app.get('/customer/apply-loan', (req, res) => {
     res.render('loan_application/step1_personalInfo');
 });
@@ -206,7 +183,6 @@ app.get('/customer/apply-loan/step5', (req, res) => {
 });
 
 app.get('/customer/apply-loan/step6', (req, res) => {
-    // Step 6 review — still uses session data (to be wired in Phase 3)
     const applicationReview = {
         personal: {
             name: 'Navin Vishwa',
@@ -243,10 +219,6 @@ app.get('/customer/apply-loan/step6', (req, res) => {
     res.render('loan_application/step6_reviewSubmit', { applicationReview });
 });
 
-// ─────────────────────────────────────────────────────────────
-//  LOAN APPLICATION — SUBMIT (POST)
-//  Inserts a new application row into Supabase.
-// ─────────────────────────────────────────────────────────────
 app.post('/customer/apply-loan/submit', async (req, res) => {
     try {
         const {
@@ -257,7 +229,6 @@ app.post('/customer/apply-loan/submit', async (req, res) => {
             repayment_id
         } = req.body;
 
-        // Generate application number: RU + year + 6-digit random
         const appNumber = `RU${new Date().getFullYear()}${String(Math.floor(Math.random() * 1000000)).padStart(6, '0')}`;
 
         const { data, error } = await supabase
@@ -296,7 +267,6 @@ app.post('/customer/apply-loan/submit', async (req, res) => {
     }
 });
 
-// Legacy success GET (kept for backward compatibility)
 app.get('/customer/apply-loan/success', (req, res) => {
     const applicationResult = {
         applicationId: 'RU2026000215',
@@ -321,9 +291,6 @@ app.get('/customer/application-success', (req, res) => {
     res.render('loan_application/application_success', { application });
 });
 
-// ─────────────────────────────────────────────────────────────
-//  START SERVER
-// ─────────────────────────────────────────────────────────────
 app.listen(3000, () => {
     console.log('Rupya AI server running on http://localhost:3000');
 });
