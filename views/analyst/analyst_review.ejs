@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head', { pageTitle: 'Review Application | Rupya AI' }) %>
+</head>
+
+<body class="bg-light">
+
+    <%- include('../partials/navbar') %>
+
+    <div class="container mt-5">
+
+        <div class="mb-4">
+            <h1>Application Review</h1>
+            <p class="text-muted">
+                <%= application.application_number %> &mdash;
+                <% if (application.status === 'Approved') { %>
+                    <span class="badge bg-success"><%= application.status %></span>
+                <% } else if (application.status === 'Rejected') { %>
+                    <span class="badge bg-danger"><%= application.status %></span>
+                <% } else if (application.status === 'Under Review') { %>
+                    <span class="badge bg-warning text-dark"><%= application.status %></span>
+                <% } else { %>
+                    <span class="badge bg-secondary"><%= application.status %></span>
+                <% } %>
+            </p>
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-8">
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Applicant Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Full Name</strong></p>
+                                <p class="text-secondary">
+                                    <%= applicant.first_name %>
+                                    <%= applicant.middle_name ? applicant.middle_name + ' ' : '' %>
+                                    <%= applicant.last_name %>
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Date of Birth</strong></p>
+                                <p class="text-secondary">
+                                    <%= applicant.dob ? new Date(applicant.dob).toLocaleDateString('en-IN') : '—' %>
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Gender</strong></p>
+                                <p class="text-secondary"><%= applicant.gender?.gender_name || '—' %></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>PAN Number</strong></p>
+                                <p class="text-secondary"><%= applicant.pan_number || '—' %></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Aadhaar</strong></p>
+                                <p class="text-secondary">
+                                    <%= applicant.aadhaar_number ? 'XXXX XXXX ' + applicant.aadhaar_number.slice(-4) : '—' %>
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Email</strong></p>
+                                <p class="text-secondary"><%= applicant.email %></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Phone</strong></p>
+                                <p class="text-secondary"><%= applicant.phone %></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Address</strong></p>
+                                <p class="text-secondary">
+                                    <%= [applicant.address_line1, applicant.address_line2, applicant.city, applicant.states?.state_name, applicant.pincode].filter(Boolean).join(', ') %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Loan Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Loan Type</strong></p>
+                                <p class="text-secondary"><%= application.loan_types?.loan_type_name || '—' %></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Amount Requested</strong></p>
+                                <p class="text-secondary">₹<%= Number(application.loan_amount_requested).toLocaleString('en-IN') %></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Tenure</strong></p>
+                                <p class="text-secondary"><%= application.loan_tenure_months %> Months</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Purpose</strong></p>
+                                <p class="text-secondary"><%= application.loan_purpose || '—' %></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Repayment Mode</strong></p>
+                                <p class="text-secondary"><%= application.repayment?.repayment_mode || '—' %></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <p class="mb-1"><strong>Submitted On</strong></p>
+                                <p class="text-secondary"><%= new Date(application.submitted_at).toLocaleDateString('en-IN') %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Employment Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2"><strong>Occupation:</strong> <%= applicant.occupation?.occupation_name || '—' %></p>
+                        <p class="mb-2"><strong>Employer:</strong> <%= applicant.employer_name || '—' %></p>
+                        <p class="mb-2"><strong>Employment Type:</strong> <%= applicant.employment_types?.employment_type_name || '—' %></p>
+                        <p class="mb-2"><strong>Education:</strong> <%= applicant.education_level?.education_level_name || '—' %></p>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Financial Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2"><strong>Monthly Income:</strong> ₹<%= applicant.monthly_income ? Number(applicant.monthly_income).toLocaleString('en-IN') : '—' %></p>
+                        <p class="mb-2"><strong>Annual Income:</strong> ₹<%= applicant.monthly_income ? Number(applicant.monthly_income * 12).toLocaleString('en-IN') : '—' %></p>
+                        <p class="mb-2"><strong>Income Type:</strong> <%= applicant.income_types?.income_type_name || '—' %></p>
+                        <p class="mb-2"><strong>Bank Name:</strong> <%= applicant.bank_name || '—' %></p>
+                        <p class="mb-2"><strong>Account Type:</strong> <%= applicant.account_types?.account_type_name || '—' %></p>
+                        <p class="mb-2"><strong>IFSC Code:</strong> <%= applicant.ifsc_code || '—' %></p>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Credit Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <% if (creditEnquiry) { %>
+                            <p class="mb-2"><strong>Bureau:</strong> <%= creditEnquiry.bureau_name %></p>
+                            <p class="mb-2"><strong>Credit Score:</strong> <%= creditEnquiry.credit_score %></p>
+                            <p class="mb-2"><strong>Total Accounts:</strong> <%= creditEnquiry.total_accounts ?? '—' %></p>
+                            <p class="mb-2"><strong>Active Accounts:</strong> <%= creditEnquiry.active_accounts ?? '—' %></p>
+                            <p class="mb-2"><strong>Total Outstanding:</strong> ₹<%= creditEnquiry.total_outstanding ? Number(creditEnquiry.total_outstanding).toLocaleString('en-IN') : '0' %></p>
+                            <p class="mb-2"><strong>Total Overdue:</strong> ₹<%= creditEnquiry.total_overdue ? Number(creditEnquiry.total_overdue).toLocaleString('en-IN') : '0' %></p>
+                            <p class="mb-2"><strong>Enquiries (Last 6M):</strong> <%= creditEnquiry.enquiries_last_6m ?? '—' %></p>
+                        <% } else { %>
+                            <p class="text-muted">No credit bureau report available.</p>
+                        <% } %>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h5 class="mb-0">Analyst Decision</h5>
+                    </div>
+                    <div class="card-body">
+
+                        <% if (application.status === 'Approved' || application.status === 'Rejected') { %>
+
+                            <p><strong>Decision:</strong>
+                                <% if (application.status === 'Approved') { %>
+                                    <span class="badge bg-success"><%= application.status %></span>
+                                <% } else { %>
+                                    <span class="badge bg-danger"><%= application.status %></span>
+                                <% } %>
+                            </p>
+
+                            <% if (application.decision_notes) { %>
+                                <p class="mb-1"><strong>Remarks:</strong></p>
+                                <p class="text-secondary"><%= application.decision_notes %></p>
+                            <% } %>
+
+                            <% if (application.decided_at) { %>
+                                <p class="text-muted mb-0" style="font-size: 0.85rem;">
+                                    Decided on <%= new Date(application.decided_at).toLocaleDateString('en-IN') %>
+                                </p>
+                            <% } %>
+
+                        <% } else { %>
+
+                            <form action="/analyst/applications/<%= application.application_id %>/decide" method="POST">
+
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Analyst Remarks</strong></label>
+                                    <textarea
+                                        class="form-control"
+                                        name="decision_notes"
+                                        rows="5"
+                                        placeholder="Enter your remarks…"
+                                        required></textarea>
+                                </div>
+
+                                <input type="hidden" name="analyst_id" value="<%= analyst.analyst_id %>">
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" name="decision" value="Approved" class="btn btn-success">Approve</button>
+                                    <button type="submit" name="decision" value="Rejected" class="btn btn-danger">Reject</button>
+                                </div>
+
+                            </form>
+
+                        <% } %>
+
+                        <hr>
+
+                        <a href="/analyst/dashboard" class="btn btn-outline-secondary w-100">Back to Dashboard</a>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <%- include('../partials/footer') %>
+    <%- include('../partials/scripts') %>
+
+</body>
+
+</html>

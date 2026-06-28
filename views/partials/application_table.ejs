@@ -9,11 +9,11 @@
         </tr>
     </thead>
     <tbody>
-        <% applications.forEach(application => { %>
+        <% (applications || []).forEach(application => { %>
             <tr>
                 <td><%= application.applicationID %></td>
                 <td><%= application.loanType %></td>
-                <td>₹<%= application.amount %></td>
+                <td>₹<%= Number(application.amount).toLocaleString('en-IN') %></td>
                 <td><%= application.applicationDate %></td>
                 <td>
                     <% if (application.status === 'Approved') { %>
@@ -21,7 +21,7 @@
                     <% } else if (application.status === 'Rejected') { %>
                         <span class="badge bg-danger"><%= application.status %></span>
                     <% } else if (application.status === 'Under Review') { %>
-                        <span class="badge bg-warning"><%= application.status %></span>
+                        <span class="badge bg-warning text-dark"><%= application.status %></span>
                     <% } else { %>
                         <span class="badge bg-secondary"><%= application.status %></span>
                     <% } %>

@@ -1,6 +1,8 @@
 const express = require('express');
 const session = require('express-session');
+const passport = require('./config/passport');
 const supabase = require('./config/supabase');
+
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -8,17 +10,256 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'rupya-dev-secret',
+    secret: process.env.SESSION_SECRET || 'rupya-ai-secret-change-in-production',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 8 * 60 * 60 * 1000
+    }
 }));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 const CURRENT_APPLICANT_ID = 2;
 
-// DEV ONLY — remove when auth is live
 app.get('/dev/login/:id', (req, res) => {
     req.session.applicantId = parseInt(req.params.id);
     res.send(`Session set: applicant_id = ${req.params.id}`);
+});
+
+function isAnalyst(req, res, next) {
+    if (req.isAuthenticated && req.isAuthenticated()) {
+        return next();
+    }
+    req.session.returnTo = req.originalUrl;
+    res.redirect('/analyst/login');
+}
+
+app.get('/analyst/login', (req, res) => {
+    if (req.isAuthenticated && req.isAuthenticated()) {
+        return res.redirect('/analyst/dashboard');
+    }
+
+    const errorMessage = req.session.loginError || null;
+    delete req.session.loginError;
+
+    res.render('analyst/analyst_login', {
+        pageTitle: 'Analyst Login | Rupya AI',
+        errorMessage
+    });
+});
+
+app.post('/analyst/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) return next(err);
+
+        if (!user) {
+            req.session.loginError = info?.message || 'Invalid credentials.';
+            return res.redirect('/analyst/login');
+        }
+
+        req.logIn(user, (loginErr) => {
+            if (loginErr) return next(loginErr);
+
+            const returnTo = req.session.returnTo || '/analyst/dashboard';
+            delete req.session.returnTo;
+            res.redirect(returnTo);
+        });
+    })(req, res, next);
+});
+
+app.get('/analyst/logout', (req, res, next) => {
+    req.logout((err) => {
+        if (err) return next(err);
+        req.session.destroy(() => {
+            res.redirect('/analyst/login');
+        });
+    });
+});
+
+app.get('/analyst/dashboard', isAnalyst, async (req, res) => {
+    try {
+        const { data: applications, error } = await supabase
+            .from('applications')
+            .select(`
+                application_id,
+                application_number,
+                loan_amount_requested,
+                status,
+                submitted_at,
+                applicants ( first_name, last_name ),
+                loan_types ( loan_type_name )
+            `)
+            .order('submitted_at', { ascending: false });
+
+        if (error) throw error;
+
+        const stats = {
+            total: applications.length,
+            pending: applications.filter(a => ['Submitted', 'Under Review'].includes(a.status)).length,
+            approved: applications.filter(a => a.status === 'Approved').length,
+            rejected: applications.filter(a => a.status === 'Rejected').length,
+        };
+
+        res.render('analyst/analyst_dashboard', {
+            analyst: req.user,
+            applications,
+            stats
+        });
+
+    } catch (err) {
+        console.error('Analyst dashboard error:', err.message);
+        res.status(500).send('Could not load analyst dashboard.');
+    }
+});
+
+app.get('/analyst/applications', isAnalyst, (req, res) => {
+    res.redirect('/analyst/dashboard');
+});
+
+app.get('/analyst/applications/:id/review', isAnalyst, async (req, res) => {
+    const appId = parseInt(req.params.id, 10);
+
+    try {
+        const { data: application, error: appError } = await supabase
+            .from('applications')
+            .select(`
+                application_id,
+                application_number,
+                loan_amount_requested,
+                loan_tenure_months,
+                loan_purpose,
+                status,
+                submitted_at,
+                reviewed_at,
+                decided_at,
+                decision_notes,
+                applicant_id,
+                loan_types ( loan_type_name ),
+                repayment  ( repayment_mode )
+            `)
+            .eq('application_id', appId)
+            .single();
+
+        if (appError || !application) {
+            return res.status(404).send('Application not found.');
+        }
+
+        const { data: applicant, error: applicantError } = await supabase
+            .from('applicants')
+            .select(`
+                applicant_id,
+                first_name,
+                middle_name,
+                last_name,
+                dob,
+                pan_number,
+                aadhaar_number,
+                email,
+                phone,
+                address_line1,
+                address_line2,
+                city,
+                pincode,
+                employer_name,
+                monthly_income,
+                bank_name,
+                account_number,
+                ifsc_code,
+                gender           ( gender_name ),
+                states           ( state_name ),
+                occupation       ( occupation_name ),
+                employment_types ( employment_type_name ),
+                income_types     ( income_type_name ),
+                account_types    ( account_type_name ),
+                education_level  ( education_level_name )
+            `)
+            .eq('applicant_id', application.applicant_id)
+            .single();
+
+        if (applicantError) throw applicantError;
+
+        const { data: creditRows } = await supabase
+            .from('credit_enquiries')
+            .select('*')
+            .eq('application_id', appId)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+        const creditEnquiry = creditRows?.[0] || null;
+
+        const { data: riskRows } = await supabase
+            .from('risk_assessments')
+            .select('*')
+            .eq('application_id', appId)
+            .limit(1);
+
+        const riskAssessment = riskRows?.[0] || null;
+
+        if (application.status === 'Submitted') {
+            await supabase
+                .from('applications')
+                .update({
+                    status: 'Under Review',
+                    reviewed_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                })
+                .eq('application_id', appId);
+
+            application.status = 'Under Review';
+        }
+
+        res.render('analyst/analyst_review', {
+            analyst: req.user,
+            application,
+            applicant,
+            creditEnquiry,
+            riskAssessment
+        });
+
+    } catch (err) {
+        console.error('Review error:', err.message);
+        res.status(500).send('Could not load application review.');
+    }
+});
+
+app.post('/analyst/applications/:id/decide', isAnalyst, async (req, res) => {
+    const appId = parseInt(req.params.id, 10);
+    const { decision, decision_notes } = req.body;
+
+    if (!['Approved', 'Rejected'].includes(decision)) {
+        return res.status(400).send('Invalid decision value.');
+    }
+
+    if (!decision_notes || decision_notes.trim().length === 0) {
+        return res.status(400).send('Analyst remarks are required.');
+    }
+
+    try {
+        const { data: updated, error } = await supabase
+            .from('applications')
+            .update({
+                status: decision,
+                decision_notes: decision_notes.trim(),
+                assigned_analyst_id: req.user.analyst_id,
+                decided_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            })
+            .eq('application_id', appId)
+            .select('application_number, status')
+            .single();
+
+        if (error) throw error;
+
+        res.redirect(`/analyst/applications/${appId}/review`);
+
+    } catch (err) {
+        console.error('Decision error:', err.message);
+        res.status(500).send('Could not save decision. Please try again.');
+    }
 });
 
 app.get('/customer/dashboard', async (req, res) => {
