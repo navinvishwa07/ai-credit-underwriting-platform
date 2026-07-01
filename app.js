@@ -23,19 +23,20 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-const CURRENT_APPLICANT_ID = 2;
-
-app.get('/dev/login/:id', (req, res) => {
-    req.session.applicantId = parseInt(req.params.id);
-    res.send(`Session set: applicant_id = ${req.params.id}`);
-});
-
 function isAnalyst(req, res, next) {
-    if (req.isAuthenticated && req.isAuthenticated()) {
+    if (req.isAuthenticated && req.isAuthenticated() && req.user?.role !== 'customer') {
         return next();
     }
     req.session.returnTo = req.originalUrl;
     res.redirect('/analyst/login');
+}
+
+function isCustomer(req, res, next) {
+    if (req.isAuthenticated && req.isAuthenticated() && req.user?.role === 'customer') {
+        return next();
+    }
+    req.session.returnTo = req.originalUrl;
+    res.redirect('/customer/login');
 }
 
 app.get('/analyst/login', (req, res) => {
@@ -53,7 +54,7 @@ app.get('/analyst/login', (req, res) => {
 });
 
 app.post('/analyst/login', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+    passport.authenticate('analyst-local', (err, user, info) => {
         if (err) return next(err);
 
         if (!user) {
@@ -76,6 +77,45 @@ app.get('/analyst/logout', (req, res, next) => {
         if (err) return next(err);
         req.session.destroy(() => {
             res.redirect('/analyst/login');
+        });
+    });
+});
+
+app.get('/customer/login', (req, res) => {
+    if (req.isAuthenticated && req.isAuthenticated() && req.user?.role === 'customer') {
+        return res.redirect('/customer/dashboard');
+    }
+
+    const errorMessage = req.session.loginError || null;
+    delete req.session.loginError;
+
+    res.render('customer/customer_login', { errorMessage });
+});
+
+app.post('/customer/login', (req, res, next) => {
+    passport.authenticate('customer-local', (err, user, info) => {
+        if (err) return next(err);
+
+        if (!user) {
+            req.session.loginError = info?.message || 'Invalid credentials.';
+            return res.redirect('/customer/login');
+        }
+
+        req.logIn(user, (loginErr) => {
+            if (loginErr) return next(loginErr);
+
+            const returnTo = req.session.returnTo || '/customer/dashboard';
+            delete req.session.returnTo;
+            res.redirect(returnTo);
+        });
+    })(req, res, next);
+});
+
+app.get('/customer/logout', (req, res, next) => {
+    req.logout((err) => {
+        if (err) return next(err);
+        req.session.destroy(() => {
+            res.redirect('/customer/login');
         });
     });
 });
@@ -262,16 +302,16 @@ app.post('/analyst/applications/:id/decide', isAnalyst, async (req, res) => {
     }
 });
 
-app.get('/customer/dashboard', async (req, res) => {
+app.get('/customer/dashboard', isCustomer, async (req, res) => {
     try {
         const { data: applicant, error: applicantError } = await supabase
             .from('applicants')
             .select('first_name, last_name')
-            .eq('applicant_id', CURRENT_APPLICANT_ID)
+            .eq('applicant_id', req.user.applicant_id)
             .maybeSingle();
 
         if (applicantError) throw applicantError;
-        if (!applicant) return res.status(404).send('Applicant not found for ID: ' + CURRENT_APPLICANT_ID);
+        if (!applicant) return res.status(404).send('Applicant not found.');
 
         const { data: applications, error: appsError } = await supabase
             .from('applications')
@@ -283,7 +323,7 @@ app.get('/customer/dashboard', async (req, res) => {
                 submitted_at,
                 loan_types ( loan_type_name )
             `)
-            .eq('applicant_id', CURRENT_APPLICANT_ID)
+            .eq('applicant_id', req.user.applicant_id)
             .order('submitted_at', { ascending: false });
 
         if (appsError) throw appsError;
@@ -321,7 +361,7 @@ app.get('/customer/dashboard', async (req, res) => {
     }
 });
 
-app.get('/customer/profile', async (req, res) => {
+app.get('/customer/profile', isCustomer, async (req, res) => {
     try {
         const { data: row, error } = await supabase
             .from('applicants')
@@ -348,11 +388,11 @@ app.get('/customer/profile', async (req, res) => {
                 occupation ( occupation_name ),
                 employment_types ( employment_type_name )
             `)
-            .eq('applicant_id', CURRENT_APPLICANT_ID)
+            .eq('applicant_id', req.user.applicant_id)
             .maybeSingle();
 
         if (error) throw error;
-        if (!row) return res.status(404).send('Applicant not found for ID: ' + CURRENT_APPLICANT_ID);
+        if (!row) return res.status(404).send('Applicant not found.');
 
         const customer = {
             name: [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(' '),
@@ -385,7 +425,7 @@ app.get('/customer/profile', async (req, res) => {
     }
 });
 
-app.get('/customer/loan-status', async (req, res) => {
+app.get('/customer/loan-status', isCustomer, async (req, res) => {
     try {
         const { data: rows, error } = await supabase
             .from('applications')
@@ -397,7 +437,7 @@ app.get('/customer/loan-status', async (req, res) => {
                 submitted_at,
                 loan_types ( loan_type_name )
             `)
-            .eq('applicant_id', CURRENT_APPLICANT_ID)
+            .eq('applicant_id', req.user.applicant_id)
             .order('submitted_at', { ascending: false });
 
         if (error) throw error;
@@ -418,7 +458,7 @@ app.get('/customer/loan-status', async (req, res) => {
     }
 });
 
-app.get('/customer/apply-loan', (req, res) => {
+app.get('/customer/apply-loan', isCustomer, (req, res) => {
     res.render('loan_application/step1_personalInfo');
 });
 
@@ -475,7 +515,7 @@ app.get('/customer/apply-loan/step6', (req, res) => {
     res.render('loan_application/step6_reviewSubmit', { applicationReview });
 });
 
-app.post('/customer/apply-loan/submit', async (req, res) => {
+app.post('/customer/apply-loan/submit', isCustomer, async (req, res) => {
     try {
         const {
             loan_type_id,
@@ -491,7 +531,7 @@ app.post('/customer/apply-loan/submit', async (req, res) => {
             .from('applications')
             .insert({
                 application_number: appNumber,
-                applicant_id: CURRENT_APPLICANT_ID,
+                applicant_id: req.user.applicant_id,
                 loan_type_id: parseInt(loan_type_id),
                 loan_amount_requested: parseFloat(loan_amount_requested),
                 loan_tenure_months: parseInt(loan_tenure_months),
