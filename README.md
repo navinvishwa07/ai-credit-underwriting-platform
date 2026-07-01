@@ -1,1 +1,1 @@
-# Rupya-AI
+# AI Credit Underwriting Platform
