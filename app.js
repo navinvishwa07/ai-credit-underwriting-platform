@@ -127,10 +127,16 @@ app.get('/customer/signup', (req, res) => {
 
 app.post('/customer/signup', async (req, res) => {
     const { first_name, last_name, email, phone, password } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+        return res.render('customer/customer_signup', {
+            errorMessage: 'Please enter a valid email address.'
+        });
+    }
 
     try {
         const hash = await bcrypt.hash(password, 12);
-        const normalizedEmail = email.trim().toLowerCase();
 
         const { data: userRow, error: userError } = await supabase
             .from('users')
@@ -143,8 +149,15 @@ app.post('/customer/signup', async (req, res) => {
             .single();
 
         if (userError) {
+            console.error('Signup insert error:', userError);
+
+            const isDuplicateEmail = /duplicate|already exists|unique/i.test(userError.message || '')
+                || userError.code === '23505';
+
             return res.render('customer/customer_signup', {
-                errorMessage: 'Email already registered. Please log in.'
+                errorMessage: isDuplicateEmail
+                    ? 'Email already registered. Please log in.'
+                    : 'Something went wrong. Please try again.'
             });
         }
 
@@ -163,7 +176,7 @@ app.post('/customer/signup', async (req, res) => {
         res.redirect('/customer/login');
 
     } catch (err) {
-        console.error('Signup error:', err.message);
+        console.error('Signup error:', err.message || err);
         res.render('customer/customer_signup', {
             errorMessage: 'Something went wrong. Please try again.'
         });
