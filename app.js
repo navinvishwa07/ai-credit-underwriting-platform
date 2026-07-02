@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const bcrypt = require('bcryptjs');
 const passport = require('./config/passport');
 const supabase = require('./config/supabase');
 
@@ -118,6 +119,55 @@ app.get('/customer/logout', (req, res, next) => {
             res.redirect('/customer/login');
         });
     });
+});
+
+app.get('/customer/signup', (req, res) => {
+    res.render('customer/customer_signup', { errorMessage: null });
+});
+
+app.post('/customer/signup', async (req, res) => {
+    const { first_name, last_name, email, phone, password } = req.body;
+
+    try {
+        const hash = await bcrypt.hash(password, 12);
+        const normalizedEmail = email.trim().toLowerCase();
+
+        const { data: userRow, error: userError } = await supabase
+            .from('users')
+            .insert({
+                email: normalizedEmail,
+                password_hash: hash,
+                role: 'customer'
+            })
+            .select('user_id')
+            .single();
+
+        if (userError) {
+            return res.render('customer/customer_signup', {
+                errorMessage: 'Email already registered. Please log in.'
+            });
+        }
+
+        await supabase.from('applicants').insert({
+            first_name,
+            last_name,
+            email: normalizedEmail,
+            phone,
+            dob: '2000-01-01',
+            address_line1: 'To be updated',
+            city: 'To be updated',
+            pincode: '000000',
+            monthly_income: 0
+        });
+
+        res.redirect('/customer/login');
+
+    } catch (err) {
+        console.error('Signup error:', err.message);
+        res.render('customer/customer_signup', {
+            errorMessage: 'Something went wrong. Please try again.'
+        });
+    }
 });
 
 app.get('/analyst/dashboard', isAnalyst, async (req, res) => {

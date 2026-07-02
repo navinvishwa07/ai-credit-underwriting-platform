@@ -18,9 +18,9 @@ ALTER TABLE analysts
 CREATE INDEX IF NOT EXISTS idx_analysts_user_id ON analysts (user_id);
 
 INSERT INTO users (email, password_hash, role, is_active) VALUES
-('analyst1@rupya.ai', '$2b$12$REPLACE_WITH_REAL_HASH', 'analyst', TRUE),
-('analyst2@rupya.ai', '$2b$12$REPLACE_WITH_REAL_HASH', 'analyst', TRUE),
-('customer1@rupya.ai', '$2b$12$REPLACE_WITH_REAL_HASH', 'customer', TRUE);
+('analyst1@rupya.ai', '$2b$12$EqnYf55ypRaxfAAkHbZNe.ZTBIrjM37LuAR9RiCJ17Z6wfQFBjICu', 'analyst', TRUE),
+('analyst2@rupya.ai', '$2b$12$EqnYf55ypRaxfAAkHbZNe.ZTBIrjM37LuAR9RiCJ17Z6wfQFBjICu', 'analyst', TRUE),
+('navin@rupya.ai', '$2b$12$EqnYf55ypRaxfAAkHbZNe.ZTBIrjM37LuAR9RiCJ17Z6wfQFBjICu', 'customer', TRUE);
 
 INSERT INTO analysts (user_id, employee_number, first_name, last_name, email, department, role, designation, is_active)
 SELECT u.user_id, 'EMP-2024-001', 'Priya', 'Sharma', 'analyst1@rupya.ai', 'Retail Credit', 'Analyst', 'Senior Credit Analyst', TRUE
@@ -31,3 +31,7 @@ INSERT INTO analysts (user_id, employee_number, first_name, last_name, email, de
 SELECT u.user_id, 'EMP-2024-002', 'Arjun', 'Mehta', 'analyst2@rupya.ai', 'SME Credit', 'Analyst', 'Credit Analyst', TRUE
 FROM users u WHERE u.email = 'analyst2@rupya.ai'
 ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO applicants (first_name, last_name, email, phone, dob, address_line1, city, pincode, monthly_income, is_active)
+SELECT 'Navin', 'Vishwa', 'navin@rupya.ai', '9876543210', '2000-01-01', 'To be updated', 'To be updated', '000000', 0, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM applicants WHERE email = 'navin@rupya.ai');
