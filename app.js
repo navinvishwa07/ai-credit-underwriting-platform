@@ -675,15 +675,27 @@ app.get('/customer/apply-loan/step3', isCustomer, async (req, res) => {
     }
 });
 
-app.get('/customer/apply-loan/step4', isCustomer, (req, res) => {
+app.get('/customer/apply-loan/step4', isCustomer, async (req, res) => {
     req.session.loanApplication = {
         ...req.session.loanApplication,
         ...req.query
     };
 
-    res.render('customer/loan_application/step4_financialInformation', {
-        loanApp: req.session.loanApplication || {}
-    });
+    try {
+        const { data: profile } = await supabase
+            .from('applicants')
+            .select('bank_name, account_number, ifsc_code')
+            .eq('applicant_id', req.user.applicant_id)
+            .maybeSingle();
+
+        res.render('customer/loan_application/step4_financialInformation', {
+            loanApp: req.session.loanApplication || {},
+            profile: profile || {}
+        });
+    } catch (err) {
+        console.error('Loan step 4 error:', err.message || err);
+        res.status(500).send('Could not load financial information. Please try again later.');
+    }
 });
 
 app.get('/customer/apply-loan/step5', isCustomer, (req, res) => {
@@ -697,50 +709,66 @@ app.get('/customer/apply-loan/step5', isCustomer, (req, res) => {
     });
 });
 
-app.get('/customer/apply-loan/step6', isCustomer, (req, res) => {
+app.get('/customer/apply-loan/step6', isCustomer, async (req, res) => {
     req.session.loanApplication = {
         ...req.session.loanApplication,
         ...req.query
     };
 
     const loanApp = req.session.loanApplication || {};
-    const applicationReview = {
-        personal: {
-            name: [loanApp.firstName, loanApp.lastName].filter(Boolean).join(' ') || 'Navin Vishwa',
-            dob: loanApp.dob || '15 July 1990',
-            pan: loanApp.pan || 'ABCDE1234F',
-            email: loanApp.email || 'navin.vishwa@example.com',
-            phone: loanApp.mobile || '9876543210',
-            address: loanApp.address || '123 Green Avenue, Sector 45, Bengaluru, Karnataka, 560034'
-        },
-        loan: {
-            amount: loanApp.loanAmount ? parseFloat(loanApp.loanAmount).toLocaleString('en-IN') : '5,00,000',
-            type: loanApp.loanType || 'Home Loan',
-            purpose: loanApp.loanPurpose || 'Home renovation',
-            tenure: loanApp.loanTenure || 60
-        },
-        employment: {
-            employer: loanApp.companyName || 'Rupya AI Technologies',
-            monthlyIncome: loanApp.monthlyIncome ? parseFloat(loanApp.monthlyIncome).toLocaleString('en-IN') : '80,000',
-            experience: loanApp.totalExperience || 6
-        },
-        financial: {
-            currentEmi: loanApp.currentMonthlyEmi ? parseFloat(loanApp.currentMonthlyEmi).toLocaleString('en-IN') : '15,000',
-            outstandingLoans: loanApp.outstandingLoanAmount ? parseFloat(loanApp.outstandingLoanAmount).toLocaleString('en-IN') : '2,50,000',
-            savings: loanApp.savingsBalance ? parseFloat(loanApp.savingsBalance).toLocaleString('en-IN') : '1,20,000',
-            assets: loanApp.investments || 'Property, Fixed Deposits'
-        },
-        credit: {
-            cards: loanApp.creditCards || 2,
-            defaults: loanApp.previousDefaults || 'No',
-            consent: 'Yes'
-        }
-    };
 
-    res.render('customer/loan_application/step6_reviewSubmit', {
-        applicationReview,
-        loanApp
-    });
+    try {
+        const { data: profile } = await supabase
+            .from('applicants')
+            .select('first_name, last_name, dob, pan_number, email, phone, address_line1, address_line2, city, pincode, employer_name, monthly_income, bank_name, states ( state_name )')
+            .eq('applicant_id', req.user.applicant_id)
+            .maybeSingle();
+
+        const p = profile || {};
+        const profileAddress = [p.address_line1, p.address_line2, p.city, p.states?.state_name, p.pincode].filter(Boolean).join(', ');
+
+        const applicationReview = {
+            personal: {
+                name: [loanApp.firstName, loanApp.lastName].filter(Boolean).join(' ') || [p.first_name, p.last_name].filter(Boolean).join(' ') || '—',
+                dob: loanApp.dob || p.dob || '—',
+                pan: loanApp.pan || p.pan_number || '—',
+                email: loanApp.email || p.email || '—',
+                phone: loanApp.mobile || p.phone || '—',
+                address: loanApp.address || profileAddress || '—'
+            },
+            loan: {
+                amount: loanApp.loanAmount ? parseFloat(loanApp.loanAmount).toLocaleString('en-IN') : '—',
+                type: loanApp.loanType || '—',
+                purpose: loanApp.loanPurpose || '—',
+                tenure: loanApp.loanTenure || '—'
+            },
+            employment: {
+                employer: loanApp.companyName || p.employer_name || '—',
+                monthlyIncome: loanApp.monthlyIncome ? parseFloat(loanApp.monthlyIncome).toLocaleString('en-IN') : (p.monthly_income ? parseFloat(p.monthly_income).toLocaleString('en-IN') : '—'),
+                experience: loanApp.totalExperience || '—'
+            },
+            financial: {
+                currentEmi: loanApp.currentMonthlyEmi ? parseFloat(loanApp.currentMonthlyEmi).toLocaleString('en-IN') : '—',
+                outstandingLoans: loanApp.outstandingLoanAmount ? parseFloat(loanApp.outstandingLoanAmount).toLocaleString('en-IN') : '—',
+                savings: loanApp.savingsBalance ? parseFloat(loanApp.savingsBalance).toLocaleString('en-IN') : '—',
+                assets: loanApp.investments || '—'
+            },
+            credit: {
+                cards: loanApp.creditCards || '—',
+                defaults: loanApp.previousDefaults || '—',
+                consent: 'Yes'
+            }
+        };
+
+        res.render('customer/loan_application/step6_reviewSubmit', {
+            applicationReview,
+            loanApp
+        });
+
+    } catch (err) {
+        console.error('Loan step 6 error:', err.message || err);
+        res.status(500).send('Could not load review page. Please try again later.');
+    }
 });
 
 app.post('/customer/apply-loan/submit', isCustomer, async (req, res) => {
@@ -815,27 +843,7 @@ app.post('/customer/apply-loan/submit', isCustomer, async (req, res) => {
     }
 });
 
-app.get('/customer/apply-loan/success', (req, res) => {
-    res.render('customer/loan_application/application_success', {
-        application: {
-            applicationID: 'RU2026000215',
-            loanType: '—',
-            amount: '0',
-            applicationDate: new Date().toLocaleDateString('en-IN')
-        }
-    });
-});
 
-app.get('/customer/application-success', (req, res) => {
-    res.render('customer/loan_application/application_success', {
-        application: {
-            applicationID: 100245,
-            loanType: 'Personal Loan',
-            amount: '5,00,000',
-            applicationDate: '18 June 2026'
-        }
-    });
-});
 
 app.listen(3000, () => {
     console.log('Rupya AI server running on http://localhost:3000');
