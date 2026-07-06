@@ -257,6 +257,19 @@ app.get('/analyst/applications/:id/review', isAnalyst, async (req, res) => {
             return res.status(403).send('Access denied. This application is assigned to another analyst.');
         }
 
+        if (application.status === 'Submitted') {
+            await supabase
+                .from('applications')
+                .update({
+                    status: 'Under Review',
+                    reviewed_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                })
+                .eq('application_id', appId);
+
+            application.status = 'Under Review';
+        }
+
         const { data: applicant, error: applicantError } = await supabase
             .from('applicants')
             .select(`
