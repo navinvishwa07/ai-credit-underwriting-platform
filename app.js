@@ -818,7 +818,7 @@ app.post('/customer/apply-loan/submit', isCustomer, async (req, res) => {
 
         const { data: analysts, error: analystError } = await supabase
             .from('analysts')
-            .select('analyst_id')
+            .select('analyst_id, first_name, last_name')
             .eq('is_active', true);
 
         if (analystError) throw analystError;
@@ -826,7 +826,30 @@ app.post('/customer/apply-loan/submit', isCustomer, async (req, res) => {
             return res.status(500).send('No available analysts to assign at the moment. Please try again later.');
         }
 
-        const randomAnalyst = analysts[Math.floor(Math.random() * analysts.length)];
+        const { data: workloads, error: workloadError } = await supabase
+            .from('applications')
+            .select('assigned_analyst_id')
+            .in('status', ['Submitted', 'Under Review'])
+            .in('assigned_analyst_id', analysts.map(a => a.analyst_id));
+
+        if (workloadError) throw workloadError;
+
+        const countMap = {};
+        analysts.forEach(a => {
+            countMap[a.analyst_id] = 0;
+        });
+        workloads?.forEach(row => {
+            if (row.assigned_analyst_id && countMap.hasOwnProperty(row.assigned_analyst_id)) {
+                countMap[row.assigned_analyst_id] += 1;
+            }
+        });
+
+        const leastBusyAnalyst = analysts.reduce((min, analyst) => {
+            if (countMap[analyst.analyst_id] < countMap[min.analyst_id]) {
+                return analyst;
+            }
+            return min;
+        }, analysts[0]);
 
         const { data, error } = await supabase
             .from('applications')
@@ -838,8 +861,8 @@ app.post('/customer/apply-loan/submit', isCustomer, async (req, res) => {
                 loan_tenure_months: loanTenure,
                 loan_purpose: loanPurpose,
                 repayment_id: repaymentId,
-                status: 'Under Review',
-                assigned_analyst_id: randomAnalyst.analyst_id
+                status: 'Submitted',
+                assigned_analyst_id: leastBusyAnalyst.analyst_id
             })
             .select()
             .single();
@@ -853,7 +876,8 @@ app.post('/customer/apply-loan/submit', isCustomer, async (req, res) => {
                 applicationID: data.application_number,
                 loanType: loanTypeName,
                 amount: parseFloat(data.loan_amount_requested).toLocaleString('en-IN'),
-                applicationDate: new Date(data.submitted_at).toLocaleDateString('en-IN')
+                applicationDate: new Date(data.submitted_at).toLocaleDateString('en-IN'),
+                assignedAnalyst: `${leastBusyAnalyst.first_name} ${leastBusyAnalyst.last_name}`
             }
         });
 
