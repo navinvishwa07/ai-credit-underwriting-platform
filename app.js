@@ -185,7 +185,7 @@ app.post('/customer/signup', async (req, res) => {
 
 app.get('/analyst/dashboard', isAnalyst, async (req, res) => {
     try {
-        const { data: applications, error } = await supabase
+        const { data: myApplications, error: myError } = await supabase
             .from('applications')
             .select(`
                 application_id,
@@ -196,25 +196,26 @@ app.get('/analyst/dashboard', isAnalyst, async (req, res) => {
                 applicants ( first_name, last_name ),
                 loan_types ( loan_type_name )
             `)
+            .eq('assigned_analyst_id', req.user.analyst_id)
             .order('submitted_at', { ascending: false });
 
-        if (error) throw error;
+        if (myError) throw myError;
 
         const stats = {
-            total: applications.length,
-            pending: applications.filter(a => ['Submitted', 'Under Review'].includes(a.status)).length,
-            approved: applications.filter(a => a.status === 'Approved').length,
-            rejected: applications.filter(a => a.status === 'Rejected').length,
+            total: myApplications?.length || 0,
+            underReview: myApplications.filter(a => a.status === 'Under Review').length,
+            approved: myApplications.filter(a => a.status === 'Approved').length,
+            rejected: myApplications.filter(a => a.status === 'Rejected').length,
         };
 
         res.render('analyst/analyst_dashboard', {
             analyst: req.user,
-            applications,
+            myApplications: myApplications || [],
             stats
         });
 
     } catch (err) {
-        console.error('Analyst dashboard error:', err.message);
+        console.error('Analyst dashboard error:', err.message || err);
         res.status(500).send('Could not load analyst dashboard.');
     }
 });
@@ -240,6 +241,7 @@ app.get('/analyst/applications/:id/review', isAnalyst, async (req, res) => {
                 reviewed_at,
                 decided_at,
                 decision_notes,
+                assigned_analyst_id,
                 applicant_id,
                 loan_types ( loan_type_name ),
                 repayment  ( repayment_mode )
@@ -249,6 +251,10 @@ app.get('/analyst/applications/:id/review', isAnalyst, async (req, res) => {
 
         if (appError || !application) {
             return res.status(404).send('Application not found.');
+        }
+
+        if (application.assigned_analyst_id !== req.user.analyst_id) {
+            return res.status(403).send('Access denied. This application is assigned to another analyst.');
         }
 
         const { data: applicant, error: applicantError } = await supabase
@@ -302,18 +308,6 @@ app.get('/analyst/applications/:id/review', isAnalyst, async (req, res) => {
 
         const riskAssessment = riskRows?.[0] || null;
 
-        if (application.status === 'Submitted') {
-            await supabase
-                .from('applications')
-                .update({
-                    status: 'Under Review',
-                    reviewed_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                })
-                .eq('application_id', appId);
-
-            application.status = 'Under Review';
-        }
 
         res.render('analyst/analyst_review', {
             analyst: req.user,
@@ -324,7 +318,7 @@ app.get('/analyst/applications/:id/review', isAnalyst, async (req, res) => {
         });
 
     } catch (err) {
-        console.error('Review error:', err.message);
+        console.error('Review error:', err.message || err);
         res.status(500).send('Could not load application review.');
     }
 });
@@ -342,12 +336,25 @@ app.post('/analyst/applications/:id/decide', isAnalyst, async (req, res) => {
     }
 
     try {
+        const { data: currentApplication, error: appError } = await supabase
+            .from('applications')
+            .select('assigned_analyst_id')
+            .eq('application_id', appId)
+            .single();
+
+        if (appError || !currentApplication) {
+            return res.status(404).send('Application not found.');
+        }
+
+        if (currentApplication.assigned_analyst_id !== req.user.analyst_id) {
+            return res.status(403).send('Access denied. This application is assigned to another analyst.');
+        }
+
         const { data: updated, error } = await supabase
             .from('applications')
             .update({
                 status: decision,
                 decision_notes: decision_notes.trim(),
-                assigned_analyst_id: req.user.analyst_id,
                 decided_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             })
@@ -360,7 +367,7 @@ app.post('/analyst/applications/:id/decide', isAnalyst, async (req, res) => {
         res.redirect(`/analyst/applications/${appId}/review`);
 
     } catch (err) {
-        console.error('Decision error:', err.message);
+        console.error('Decision error:', err.message || err);
         res.status(500).send('Could not save decision. Please try again.');
     }
 });
@@ -809,6 +816,18 @@ app.post('/customer/apply-loan/submit', isCustomer, async (req, res) => {
 
         const appNumber = `RU${new Date().getFullYear()}${String(Math.floor(Math.random() * 1000000)).padStart(6, '0')}`;
 
+        const { data: analysts, error: analystError } = await supabase
+            .from('analysts')
+            .select('analyst_id')
+            .eq('is_active', true);
+
+        if (analystError) throw analystError;
+        if (!analysts || analysts.length === 0) {
+            return res.status(500).send('No available analysts to assign at the moment. Please try again later.');
+        }
+
+        const randomAnalyst = analysts[Math.floor(Math.random() * analysts.length)];
+
         const { data, error } = await supabase
             .from('applications')
             .insert({
@@ -819,7 +838,8 @@ app.post('/customer/apply-loan/submit', isCustomer, async (req, res) => {
                 loan_tenure_months: loanTenure,
                 loan_purpose: loanPurpose,
                 repayment_id: repaymentId,
-                status: 'Submitted'
+                status: 'Under Review',
+                assigned_analyst_id: randomAnalyst.analyst_id
             })
             .select()
             .single();
