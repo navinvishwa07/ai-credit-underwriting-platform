@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head', { pageTitle: 'Edit Profile | Rupya AI' }) %>
+    </head>
+
+    <body class="bg-light">
+
+        <%- include('../partials/navbar') %>
+
+        <div class="container mt-5">
+
+            <div class="d-flex align-items-start justify-content-between mb-4">
+                <div>
+                    <h1 class="h3 mb-1">Edit Profile</h1>
+                    <p class="text-muted mb-0">Update your personal, contact, and employment details.</p>
+                </div>
+                <div>
+                    <a href="/customer/profile" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </div>
+
+            <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= successMessage %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+
+            <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%= errorMessage %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+
+            <form action="/customer/profile/update" method="POST">
+
+                <div class="row">
+
+                    <!-- Left column -->
+                    <div class="col-lg-4 mb-4">
+
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Basic Information</h5>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="mb-3">
+                                    <label class="form-label">First Name *</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        name="first_name"
+                                        value="<%= customer.first_name || '' %>"
+                                        minlength="2"
+                                        maxlength="30"
+                                        required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Middle Name</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        name="middle_name"
+                                        value="<%= customer.middle_name || '' %>"
+                                        maxlength="30">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Last Name *</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        name="last_name"
+                                        value="<%= customer.last_name || '' %>"
+                                        minlength="2"
+                                        maxlength="30"
+                                        required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Date of Birth *</label>
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        name="dob"
+                                        value="<%= customer.dob || '' %>"
+                                        required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Gender *</label>
+                                    <select class="form-select" name="gender_id" required>
+                                        <option value="">Select Gender</option>
+                                        <% genders.forEach(g => { %>
+                                            <option
+                                                value="<%= g.gender_id %>"
+                                                <%= customer.gender_id == g.gender_id ? 'selected' : '' %>>
+                                                <%= g.gender_name %>
+                                            </option>
+                                        <% }); %>
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm">
+                            <div class="card-header">
+                                <h5 class="mb-0">Employment</h5>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="mb-3">
+                                    <label class="form-label">Occupation</label>
+                                    <select class="form-select" name="occupation_id">
+                                        <option value="">Select Occupation</option>
+                                        <% occupations.forEach(o => { %>
+                                            <option
+                                                value="<%= o.occupation_id %>"
+                                                <%= customer.occupation_id == o.occupation_id ? 'selected' : '' %>>
+                                                <%= o.occupation_name %>
+                                            </option>
+                                        <% }); %>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Employer Name</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        name="employer_name"
+                                        value="<%= customer.employer_name || '' %>"
+                                        maxlength="100">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Employment Type</label>
+                                    <select class="form-select" name="employment_type_id">
+                                        <option value="">Select Type</option>
+                                        <% employmentTypes.forEach(et => { %>
+                                            <option
+                                                value="<%= et.employment_type_id %>"
+                                                <%= customer.employment_type_id == et.employment_type_id ? 'selected' : '' %>>
+                                                <%= et.employment_type_name %>
+                                            </option>
+                                        <% }); %>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Monthly Income (₹)</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="monthly_income"
+                                        value="<%= customer.monthly_income || '' %>"
+                                        min="0">
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right column -->
+                    <div class="col-lg-8">
+
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Contact & KYC</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input
+                                            type="email"
+                                            class="form-control bg-light"
+                                            value="<%= customer.email || '' %>"
+                                            readonly
+                                            disabled>
+                                        <small class="text-muted">Email cannot be changed.</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Phone *</label>
+                                        <input
+                                            type="tel"
+                                            class="form-control"
+                                            name="phone"
+                                            value="<%= customer.phone || '' %>"
+                                            minlength="10"
+                                            maxlength="10"
+                                            required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">PAN Number</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="pan_number"
+                                            value="<%= customer.pan_number || '' %>"
+                                            maxlength="10"
+                                            pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                                            placeholder="ABCDE1234F">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Aadhaar Number</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="aadhaar_number"
+                                            value="<%= customer.aadhaar_number || '' %>"
+                                            minlength="12"
+                                            maxlength="12">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Address</h5>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="mb-3">
+                                    <label class="form-label">Address Line 1 *</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        name="address_line1"
+                                        value="<%= customer.address_line1 || '' %>"
+                                        required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Address Line 2</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        name="address_line2"
+                                        value="<%= customer.address_line2 || '' %>">
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">City *</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="city"
+                                            value="<%= customer.city || '' %>"
+                                            required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">State *</label>
+                                        <select class="form-select" name="state_id" required>
+                                            <option value="">Select State</option>
+                                            <% states.forEach(s => { %>
+                                                <option
+                                                    value="<%= s.state_id %>"
+                                                    <%= customer.state_id == s.state_id ? 'selected' : '' %>>
+                                                    <%= s.state_name %>
+                                                </option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">PIN Code *</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="pincode"
+                                            value="<%= customer.pincode || '' %>"
+                                            minlength="6"
+                                            maxlength="6"
+                                            required>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Banking Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Bank Name</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="bank_name"
+                                            value="<%= customer.bank_name || '' %>">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Account Number</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="account_number"
+                                            value="<%= customer.account_number || '' %>">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">IFSC Code</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="ifsc_code"
+                                            value="<%= customer.ifsc_code || '' %>"
+                                            maxlength="11">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mb-4">
+                            <a href="/customer/profile" class="btn btn-outline-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <%- include('../partials/footer') %>
+
+        <%- include('../partials/scripts') %>
+
+    </body>
+</html>

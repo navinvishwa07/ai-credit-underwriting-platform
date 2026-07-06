@@ -488,6 +488,96 @@ app.get('/customer/profile', isCustomer, async (req, res) => {
     }
 });
 
+app.get('/customer/profile/edit', isCustomer, async (req, res) => {
+    try {
+        const { data: row, error } = await supabase
+            .from('applicants')
+            .select('*')
+            .eq('applicant_id', req.user.applicant_id)
+            .maybeSingle();
+
+        if (error) throw error;
+        if (!row) return res.status(404).send('Applicant not found.');
+
+        const [{ data: genders }, { data: states }, { data: occupations }, { data: employmentTypes }] = await Promise.all([
+            supabase.from('gender').select('*').order('gender_id'),
+            supabase.from('states').select('*').order('state_name'),
+            supabase.from('occupation').select('*').order('occupation_id'),
+            supabase.from('employment_types').select('*').order('employment_type_id')
+        ]);
+
+        const successMessage = req.session.profileSuccess || null;
+        const errorMessage = req.session.profileError || null;
+        delete req.session.profileSuccess;
+        delete req.session.profileError;
+
+        res.render('customer/customer_edit_profile', {
+            customer: row,
+            genders: genders || [],
+            states: states || [],
+            occupations: occupations || [],
+            employmentTypes: employmentTypes || [],
+            successMessage,
+            errorMessage
+        });
+
+    } catch (err) {
+        console.error('Edit profile error:', err.message);
+        res.status(500).send('Could not load edit profile. Please try again later.');
+    }
+});
+
+app.post('/customer/profile/update', isCustomer, async (req, res) => {
+    try {
+        const {
+            first_name, middle_name, last_name, dob,
+            gender_id, phone, pan_number, aadhaar_number,
+            address_line1, address_line2, city, state_id, pincode,
+            occupation_id, employer_name, employment_type_id, monthly_income,
+            bank_name, account_number, ifsc_code
+        } = req.body;
+
+        const updateData = {
+            first_name: first_name?.trim(),
+            middle_name: middle_name?.trim() || null,
+            last_name: last_name?.trim(),
+            dob,
+            gender_id: gender_id ? parseInt(gender_id) : null,
+            phone: phone?.trim(),
+            pan_number: pan_number?.trim() || null,
+            aadhaar_number: aadhaar_number?.trim() || null,
+            address_line1: address_line1?.trim(),
+            address_line2: address_line2?.trim() || null,
+            city: city?.trim(),
+            state_id: state_id ? parseInt(state_id) : null,
+            pincode: pincode?.trim(),
+            occupation_id: occupation_id ? parseInt(occupation_id) : null,
+            employer_name: employer_name?.trim() || null,
+            employment_type_id: employment_type_id ? parseInt(employment_type_id) : null,
+            monthly_income: monthly_income ? parseFloat(monthly_income) : null,
+            bank_name: bank_name?.trim() || null,
+            account_number: account_number?.trim() || null,
+            ifsc_code: ifsc_code?.trim() || null,
+            updated_at: new Date().toISOString()
+        };
+
+        const { error } = await supabase
+            .from('applicants')
+            .update(updateData)
+            .eq('applicant_id', req.user.applicant_id);
+
+        if (error) throw error;
+
+        req.session.profileSuccess = 'Profile updated successfully.';
+        res.redirect('/customer/profile/edit');
+
+    } catch (err) {
+        console.error('Profile update error:', err.message);
+        req.session.profileError = 'Could not update profile. Please try again.';
+        res.redirect('/customer/profile/edit');
+    }
+});
+
 app.get('/customer/loan-status', isCustomer, async (req, res) => {
     try {
         const { data: rows, error } = await supabase
@@ -530,15 +620,20 @@ app.get('/customer/apply-loan', isCustomer, async (req, res) => {
     try {
         const { data: profile, error: profileError } = await supabase
             .from('applicants')
-            .select('first_name, middle_name, last_name, dob, pan_number, aadhaar_number, email, phone, address_line1, address_line2, city, pincode')
+            .select('first_name, middle_name, last_name, dob, pan_number, aadhaar_number, email, phone, address_line1, address_line2, city, pincode, states ( state_name )')
             .eq('applicant_id', req.user.applicant_id)
             .maybeSingle();
 
         if (profileError) throw profileError;
 
+        const profileData = profile || {};
+        if (profileData.states) {
+            profileData.stateName = profileData.states.state_name;
+        }
+
         res.render('customer/loan_application/step1_personalInfo', {
             loanApp: req.session.loanApplication || {},
-            profile: profile || {}
+            profile: profileData
         });
     } catch (err) {
         console.error('Loan step 1 error:', err.message || err);
@@ -557,15 +652,27 @@ app.get('/customer/apply-loan/step2', isCustomer, (req, res) => {
     });
 });
 
-app.get('/customer/apply-loan/step3', isCustomer, (req, res) => {
+app.get('/customer/apply-loan/step3', isCustomer, async (req, res) => {
     req.session.loanApplication = {
         ...req.session.loanApplication,
         ...req.query
     };
 
-    res.render('customer/loan_application/step3_employmentDetails', {
-        loanApp: req.session.loanApplication || {}
-    });
+    try {
+        const { data: profile } = await supabase
+            .from('applicants')
+            .select('employer_name, monthly_income, bank_name')
+            .eq('applicant_id', req.user.applicant_id)
+            .maybeSingle();
+
+        res.render('customer/loan_application/step3_employmentDetails', {
+            loanApp: req.session.loanApplication || {},
+            profile: profile || {}
+        });
+    } catch (err) {
+        console.error('Loan step 3 error:', err.message || err);
+        res.status(500).send('Could not load employment details. Please try again later.');
+    }
 });
 
 app.get('/customer/apply-loan/step4', isCustomer, (req, res) => {
@@ -665,7 +772,7 @@ app.post('/customer/apply-loan/submit', isCustomer, async (req, res) => {
             const { data: repaymentRow, error: repaymentError } = await supabase
                 .from('repayment')
                 .select('repayment_id')
-                .eq('repayment_method', repaymentMethod)
+                .eq('repayment_mode', repaymentMethod)
                 .maybeSingle();
 
             if (repaymentError) throw repaymentError;

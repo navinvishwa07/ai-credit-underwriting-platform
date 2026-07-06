@@ -111,6 +111,7 @@
                                     maxlength="100"
                                     class="form-control border border-dark"
                                     name="companyName"
+                                    value="<%= loanApp.companyName || (typeof profile !== 'undefined' && profile.employer_name) || '' %>"
                                     required>
 
                             </div>
@@ -223,6 +224,7 @@
                                     type="number"
                                     class="form-control border border-dark"
                                     name="monthlyIncome"
+                                    value="<%= loanApp.monthlyIncome || (typeof profile !== 'undefined' && profile.monthly_income) || '' %>"
                                     minlength="10000"
                                     required>
 
@@ -255,6 +257,7 @@
                                 type="text"
                                 class="form-control border border-dark"
                                 name="salaryBank"
+                                value="<%= loanApp.salaryBank || (typeof profile !== 'undefined' && profile.bank_name) || '' %>"
                                 required>
 
                         </div>

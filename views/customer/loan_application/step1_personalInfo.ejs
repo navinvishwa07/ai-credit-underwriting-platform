@@ -229,7 +229,7 @@
                                 class="form-control border border-dark"
                                 rows="3"
                                 name="address"
-                                required></textarea>
+                                required><%= loanApp.address || [profile.address_line1, profile.address_line2].filter(Boolean).join(', ') || '' %></textarea>
 
                         </div>
 
@@ -245,6 +245,7 @@
                                     type="text"
                                     class="form-control border border-dark"
                                     name="city"
+                                    value="<%= loanApp.city || profile.city || '' %>"
                                     minlength="2"
                                     maxlength="50"
                                     required>
@@ -262,6 +263,7 @@
                                     class="form-control border border-dark"
                                     name="state"
                                     list="stateList"
+                                    value="<%= loanApp.state || profile.stateName || '' %>"
                                     minlength="2"
                                     maxlength="50"
                                     required>
@@ -316,6 +318,7 @@
                                     type="text"
                                     class="form-control border border-dark"
                                     name="pincode"
+                                    value="<%= loanApp.pincode || profile.pincode || '' %>"
                                     minlength="6"
                                     maxlength="6"
                                     required>
