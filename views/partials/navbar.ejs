@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/customer/dashboard">
+        <a class="navbar-brand fw-bold" href="<%= user?.role === 'customer' ? '/customer/dashboard' : user?.role ? '/analyst/dashboard' : '/' %>">
             Rupya AI
         </a>
 
@@ -10,21 +10,37 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/customer/dashboard">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/customer/apply-loan">Apply Loan</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/customer/loan-status">Track Applications</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/customer/profile">Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/customer/logout">Logout</a>
-                </li>
+                <% if (user?.role === 'customer') { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/apply-loan">Apply Loan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/loan-status">Track Applications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/profile">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/logout">Logout</a>
+                    </li>
+                <% } else if (user?.role === 'analyst' || user?.role === 'admin') { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analyst/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analyst/logout">Logout</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/login">Customer Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/analyst/login">Analyst Login</a>
+                    </li>
+                <% } %>
             </ul>
         </div>
     </div>

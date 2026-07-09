@@ -6,6 +6,7 @@
             <th>Amount</th>
             <th>Date</th>
             <th>Status</th>
+            <th>Assigned Analyst</th>
         </tr>
     </thead>
     <tbody>
@@ -26,6 +27,7 @@
                         <span class="badge bg-secondary"><%= application.status %></span>
                     <% } %>
                 </td>
+                <td><%= application.assignedAnalyst || 'Not assigned yet' %></td>
             </tr>
         <% }) %>
     </tbody>

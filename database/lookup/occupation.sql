@@ -1,7 +1,7 @@
 CREATE TABLE occupation (
 
     occupation_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    occupation_name VARCHAR(50) NOT NULL UNIQUE,
+    occupation_name VARCHAR(50) NOT NULL UNIQUE
 
 );
 
