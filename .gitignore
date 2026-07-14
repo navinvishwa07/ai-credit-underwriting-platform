@@ -16,3 +16,4 @@ coverage/
 
 # Editor
 .vscode/
+__pycache__/
