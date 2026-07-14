@@ -166,6 +166,94 @@
 
             <div class="col-lg-4">
 
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">AI Risk Assessment</h5>
+                        <% if (riskAssessment) { %>
+                            <span class="badge bg-success">Completed</span>
+                        <% } %>
+                    </div>
+                    <div class="card-body">
+
+                        <% if (riskAssessment) { %>
+
+                            <div class="text-center mb-3">
+                                <div style="font-size: 2rem; font-weight: bold;
+                                    color: <%= riskAssessment.risk_category === 'Low Risk' ? '#198754' :
+                                               riskAssessment.risk_category === 'Medium Risk' ? '#ffc107' :
+                                               riskAssessment.risk_category === 'High Risk' ? '#fd7e14' : '#dc3545' %>;">
+                                    <%= riskAssessment.overall_score %>%
+                                </div>
+                                <p class="text-muted mb-1">Approval Score</p>
+                            </div>
+
+                            <p class="mb-2"><strong>Risk Category:</strong>
+                                <span class="badge
+                                    <%= riskAssessment.risk_category === 'Low Risk' ? 'bg-success' :
+                                       riskAssessment.risk_category === 'Medium Risk' ? 'bg-warning text-dark' :
+                                       riskAssessment.risk_category === 'High Risk' ? 'bg-warning text-dark' : 'bg-danger' %>">
+                                    <%= riskAssessment.risk_category %>
+                                </span>
+                            </p>
+
+                            <p class="mb-2"><strong>Recommendation:</strong>
+                                <span class="badge
+                                    <%= riskAssessment.recommendation === 'Approve' ? 'bg-success' :
+                                       riskAssessment.recommendation === 'Reject' ? 'bg-danger' : 'bg-info text-dark' %>">
+                                    <%= riskAssessment.recommendation %>
+                                </span>
+                            </p>
+
+                            <p class="mb-2"><strong>Credit Score Used:</strong> <%= riskAssessment.credit_score_used || '—' %></p>
+                            <p class="mb-2"><strong>Debt-to-Income:</strong> <%= riskAssessment.debt_to_income_ratio ? (riskAssessment.debt_to_income_ratio * 100).toFixed(1) + '%' : '—' %></p>
+                            <p class="mb-3"><strong>Loan-to-Income:</strong> <%= riskAssessment.loan_to_income_ratio ? Number(riskAssessment.loan_to_income_ratio).toFixed(2) + 'x' : '—' %></p>
+
+                            <% if (riskFactors && riskFactors.length > 0) { %>
+                                <h6>Key Factors</h6>
+                                <table class="table table-sm table-bordered mb-3" style="font-size: 0.85rem;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Factor</th>
+                                            <th>Impact</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% riskFactors.slice(0, 7).forEach(function(factor) { %>
+                                            <tr>
+                                                <td><%= factor.factor_name.replace(/_/g, ' ') %></td>
+                                                <td>
+                                                    <% if (factor.impact === 'positive') { %>
+                                                        <span style="color: #198754;">▲ Positive</span>
+                                                    <% } else { %>
+                                                        <span style="color: #dc3545;">▼ Negative</span>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            <% } %>
+
+                            <p class="text-muted mb-2" style="font-size: 0.8rem;">
+                                Assessed on <%= new Date(riskAssessment.assessed_at).toLocaleDateString('en-IN') %>
+                            </p>
+
+                            <form action="/analyst/applications/<%= application.application_id %>/run-ai" method="POST">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm w-100">Re-run Assessment</button>
+                            </form>
+
+                        <% } else { %>
+
+                            <p class="text-muted mb-3">No AI assessment has been run for this application yet.</p>
+                            <form action="/analyst/applications/<%= application.application_id %>/run-ai" method="POST">
+                                <button type="submit" class="btn btn-primary w-100">Run AI Assessment</button>
+                            </form>
+
+                        <% } %>
+
+                    </div>
+                </div>
+
                 <div class="card shadow-sm">
                     <div class="card-header">
                         <h5 class="mb-0">Analyst Decision</h5>

@@ -1,6 +1,8 @@
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
+const { spawn } = require('child_process');
+const path = require('path');
 const passport = require('./config/passport');
 const supabase = require('./config/supabase');
 
@@ -401,18 +403,201 @@ app.get('/analyst/applications/:id/review', isAnalyst, async (req, res) => {
 
         const riskAssessment = riskRows?.[0] || null;
 
+        let riskFactors = [];
+        if (riskAssessment) {
+            const { data: factorRows } = await supabase
+                .from('risk_factors')
+                .select('*')
+                .eq('assessment_id', riskAssessment.assessment_id)
+                .order('factor_score', { ascending: false });
+            riskFactors = factorRows || [];
+        }
 
         res.render('analyst/analyst_review', {
             analyst: req.user,
             application,
             applicant,
             creditEnquiry,
-            riskAssessment
+            riskAssessment,
+            riskFactors
         });
 
     } catch (err) {
         console.error('Review error:', err.message || err);
         res.status(500).send('Could not load application review.');
+    }
+});
+
+app.post('/analyst/applications/:id/run-ai', isAnalyst, async (req, res) => {
+    const appId = parseInt(req.params.id, 10);
+
+    try {
+        // Fetch application data
+        const { data: application, error: appError } = await supabase
+            .from('applications')
+            .select(`
+                application_id, loan_amount_requested, loan_tenure_months, loan_purpose,
+                assigned_analyst_id,
+                loan_types ( loan_type_name )
+            `)
+            .eq('application_id', appId)
+            .single();
+
+        if (appError || !application) return res.status(404).send('Application not found.');
+        if (application.assigned_analyst_id !== req.user.analyst_id) {
+            return res.status(403).send('Access denied.');
+        }
+
+        // Fetch applicant data with lookup names
+        const { data: applicant, error: applicantError } = await supabase
+            .from('applicants')
+            .select(`
+                applicant_id, monthly_income,
+                gender ( gender_name ),
+                marital_status ( marital_status_name ),
+                education_level ( education_level_name ),
+                employment_types ( employment_type_name ),
+                occupation ( occupation_name ),
+                income_types ( income_type_name ),
+                states ( state_name ),
+                account_types ( account_type_name )
+            `)
+            .eq('applicant_id', (await supabase.from('applications').select('applicant_id').eq('application_id', appId).single()).data.applicant_id)
+            .single();
+
+        if (applicantError) throw applicantError;
+
+        // Fetch credit enquiry if available
+        const { data: creditRows } = await supabase
+            .from('credit_enquiries')
+            .select('credit_score, total_outstanding')
+            .eq('application_id', appId)
+            .order('created_at', { ascending: false })
+            .limit(1);
+        const credit = creditRows?.[0] || {};
+
+        // Build the feature payload for the model
+        const monthlyIncome = parseFloat(applicant.monthly_income) || 0;
+        const loanAmount = parseFloat(application.loan_amount_requested) || 0;
+        const existingEmi = 0; // Default — not stored in applicants table
+        const savingsBalance = 0;
+        const totalAssets = 0;
+        const liquidAssets = 0;
+        const creditScore = credit.credit_score || 650;
+
+        const modelInput = {
+            age: 30, // Not stored in applicants table directly as age; default
+            gender: applicant.gender?.gender_name || 'Male',
+            marital_status: applicant.marital_status?.marital_status_name || 'Single',
+            number_of_dependents: 0,
+            education_level: applicant.education_level?.education_level_name || 'Undergraduate',
+            employment_type: applicant.employment_types?.employment_type_name || 'Full-Time',
+            occupation: applicant.occupation?.occupation_name || 'Salaried Employee',
+            income_type: applicant.income_types?.income_type_name || 'Salary',
+            state: applicant.states?.state_name || 'Maharashtra',
+            area_type: 'Urban',
+            monthly_income: monthlyIncome,
+            loan_type: application.loan_types?.loan_type_name || 'Personal Loan',
+            loan_amount_requested: loanAmount,
+            loan_tenure_months: application.loan_tenure_months || 12,
+            loan_purpose: application.loan_purpose || 'Other',
+            credit_score: creditScore,
+            existing_emi: existingEmi,
+            savings_balance: savingsBalance,
+            total_assets_value: totalAssets,
+            liquid_assets_value: liquidAssets,
+            loan_to_income_ratio: monthlyIncome > 0 ? parseFloat((loanAmount / monthlyIncome).toFixed(4)) : 0,
+            debt_to_income_ratio: monthlyIncome > 0 ? parseFloat((existingEmi / monthlyIncome).toFixed(4)) : 0
+        };
+
+        // Call Python predict.py via child_process
+        const pythonScript = path.join(__dirname, 'ai', 'src', 'predict.py');
+        const result = await new Promise((resolve, reject) => {
+            const proc = spawn('python3', [pythonScript], {
+                cwd: path.join(__dirname, 'ai', 'src')
+            });
+
+            let stdout = '';
+            let stderr = '';
+
+            proc.stdout.on('data', (data) => { stdout += data.toString(); });
+            proc.stderr.on('data', (data) => { stderr += data.toString(); });
+
+            proc.on('close', (code) => {
+                if (code !== 0) {
+                    console.error('Python stderr:', stderr);
+                    return reject(new Error(`Python process exited with code ${code}`));
+                }
+                try {
+                    resolve(JSON.parse(stdout));
+                } catch (e) {
+                    reject(new Error('Failed to parse AI model output'));
+                }
+            });
+
+            proc.stdin.write(JSON.stringify(modelInput));
+            proc.stdin.end();
+        });
+
+        if (result.error) {
+            throw new Error(result.message || 'AI model returned an error');
+        }
+
+        // Delete existing assessment for this application (if re-running)
+        const { data: existingAssessment } = await supabase
+            .from('risk_assessments')
+            .select('assessment_id')
+            .eq('application_id', appId)
+            .maybeSingle();
+
+        if (existingAssessment) {
+            await supabase.from('risk_factors').delete().eq('assessment_id', existingAssessment.assessment_id);
+            await supabase.from('risk_assessments').delete().eq('assessment_id', existingAssessment.assessment_id);
+        }
+
+        // Insert risk assessment
+        const { data: assessment, error: assessError } = await supabase
+            .from('risk_assessments')
+            .insert({
+                application_id: appId,
+                overall_score: result.overall_score,
+                risk_category: result.risk_category,
+                recommendation: result.recommendation,
+                debt_to_income_ratio: modelInput.debt_to_income_ratio,
+                loan_to_income_ratio: modelInput.loan_to_income_ratio,
+                credit_score_used: modelInput.credit_score,
+                assessed_by: 'AI',
+                status: 'Completed',
+                assessed_at: new Date().toISOString()
+            })
+            .select('assessment_id')
+            .single();
+
+        if (assessError) throw assessError;
+
+        // Insert top risk factors
+        const factors = (result.top_factors || []).slice(0, 10).map(f => ({
+            assessment_id: assessment.assessment_id,
+            factor_name: f.feature,
+            factor_value: String(f.value),
+            factor_score: Math.abs(f.shap_value),
+            impact: f.impact,
+            weight: Math.abs(f.shap_value),
+            description: `${f.feature} = ${f.value} (SHAP: ${f.shap_value > 0 ? '+' : ''}${f.shap_value.toFixed(4)})`
+        }));
+
+        if (factors.length > 0) {
+            const { error: factorError } = await supabase
+                .from('risk_factors')
+                .insert(factors);
+            if (factorError) throw factorError;
+        }
+
+        res.redirect(`/analyst/applications/${appId}/review`);
+
+    } catch (err) {
+        console.error('AI assessment error:', err.message || err);
+        res.status(500).send('Could not run AI assessment. Please try again.');
     }
 });
 
