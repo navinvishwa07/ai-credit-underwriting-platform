@@ -563,8 +563,8 @@ app.post('/analyst/applications/:id/run-ai', isAnalyst, async (req, res) => {
                 overall_score: result.overall_score,
                 risk_category: result.risk_category,
                 recommendation: result.recommendation,
-                debt_to_income_ratio: modelInput.debt_to_income_ratio,
-                loan_to_income_ratio: modelInput.loan_to_income_ratio,
+                debt_to_income_ratio: Math.min(modelInput.debt_to_income_ratio, 9.9999),
+                loan_to_income_ratio: Math.min(modelInput.loan_to_income_ratio, 9.9999),
                 credit_score_used: modelInput.credit_score,
                 assessed_by: 'AI',
                 status: 'Completed',
@@ -580,9 +580,9 @@ app.post('/analyst/applications/:id/run-ai', isAnalyst, async (req, res) => {
             assessment_id: assessment.assessment_id,
             factor_name: f.feature,
             factor_value: String(f.value),
-            factor_score: Math.abs(f.shap_value),
+            factor_score: Math.min(Math.abs(f.shap_value), 999.99),
             impact: f.impact,
-            weight: Math.abs(f.shap_value),
+            weight: Math.min(Math.abs(f.shap_value), 9.9999),
             description: `${f.feature} = ${f.value} (SHAP: ${f.shap_value > 0 ? '+' : ''}${f.shap_value.toFixed(4)})`
         }));
 

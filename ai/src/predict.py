@@ -108,11 +108,10 @@ def predict_single(applicant_data):
     prob_approved = float(probability[1])
     risk_category = compute_risk_category(prob_approved)
 
-    # Recommendation based on prediction and confidence
     if prediction == 1 and prob_approved >= 0.70:
         recommendation = "Approve"
     elif prediction == 1 and prob_approved >= 0.50:
-        recommendation = "Approve with Conditions"
+        recommendation = "Conditional Approve"
     elif prediction == 0 and prob_approved >= 0.40:
         recommendation = "Manual Review"
     else:
