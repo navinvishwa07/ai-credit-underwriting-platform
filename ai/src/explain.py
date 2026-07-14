@@ -1,7 +1,6 @@
 import pickle
 import numpy as np
 import pandas as pd
-import shap
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -20,24 +19,41 @@ def load_model():
 
 
 def compute_shap_values(model, X_data):
-    """Compute SHAP values using TreeExplainer for the XGBoost model."""
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(X_data)
-    return explainer, shap_values
+    """
+    Compute SHAP values using XGBoost's built-in method.
+    This avoids shap.TreeExplainer compatibility issues with newer XGBoost versions.
+    """
+    import xgboost as xgb
+    booster = model.get_booster()
+    dmatrix = xgb.DMatrix(X_data, feature_names=list(X_data.columns))
+    shap_values = booster.predict(dmatrix, pred_contribs=True)
+    # Last column is the bias/base value, remove it
+    return shap_values[:, :-1]
 
 
 def plot_shap_summary(shap_values, X_data):
     """Generate and save a SHAP summary bar plot showing feature importance."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+    feature_names = list(X_data.columns)
+    mean_abs_shap = np.abs(shap_values).mean(axis=0)
+
+    # Sort by importance
+    sorted_idx = np.argsort(mean_abs_shap)
+    sorted_names = [feature_names[i] for i in sorted_idx]
+    sorted_values = mean_abs_shap[sorted_idx]
+
     fig, ax = plt.subplots(figsize=(10, 8))
-    shap.summary_plot(shap_values, X_data, plot_type="bar", show=False)
-    plt.title("SHAP Feature Importance (Mean |SHAP Value|)", fontsize=14)
+    ax.barh(range(len(sorted_names)), sorted_values, color="#1f77b4")
+    ax.set_yticks(range(len(sorted_names)))
+    ax.set_yticklabels(sorted_names)
+    ax.set_xlabel("Mean |SHAP Value|")
+    ax.set_title("SHAP Feature Importance (Mean |SHAP Value|)", fontsize=14)
     plt.tight_layout()
 
     save_path = OUTPUT_DIR / "shap_summary.png"
-    plt.savefig(save_path, dpi=150, bbox_inches="tight")
-    plt.close("all")
+    fig.savefig(save_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
     print(f"SHAP summary plot saved to {save_path}")
 
 
@@ -55,6 +71,7 @@ def get_feature_importance(shap_values, feature_names):
 def explain_single_prediction(model, X_single, feature_names):
     """
     Generate SHAP explanation for a single applicant's prediction.
+    Uses XGBoost's built-in pred_contribs for compatibility.
 
     Args:
         model: Trained XGBoost model.
@@ -64,22 +81,29 @@ def explain_single_prediction(model, X_single, feature_names):
     Returns:
         dict with prediction, probability, and per-feature SHAP contributions.
     """
-    explainer = shap.TreeExplainer(model)
+    import xgboost as xgb
 
     if isinstance(X_single, pd.Series):
         X_single = X_single.to_frame().T
 
-    shap_values = explainer.shap_values(X_single)
     prediction = model.predict(X_single)[0]
     probability = model.predict_proba(X_single)[0]
+
+    # Use XGBoost built-in SHAP (pred_contribs)
+    booster = model.get_booster()
+    dmatrix = xgb.DMatrix(X_single, feature_names=list(X_single.columns))
+    contribs = booster.predict(dmatrix, pred_contribs=True)
+    # contribs shape: (1, n_features + 1), last column is bias
+    shap_values = contribs[0, :-1]
+    base_value = contribs[0, -1]
 
     contributions = []
     for i, name in enumerate(feature_names):
         contributions.append({
             "feature": name,
             "value": float(X_single.iloc[0, i]) if isinstance(X_single, pd.DataFrame) else float(X_single[0, i]),
-            "shap_value": float(shap_values[0, i]),
-            "impact": "positive" if shap_values[0, i] > 0 else "negative",
+            "shap_value": float(shap_values[i]),
+            "impact": "positive" if shap_values[i] > 0 else "negative",
         })
 
     # Sort by absolute impact
@@ -90,7 +114,7 @@ def explain_single_prediction(model, X_single, feature_names):
         "prediction_label": "Approved" if prediction == 1 else "Rejected",
         "probability_approved": float(probability[1]),
         "probability_rejected": float(probability[0]),
-        "base_value": float(explainer.expected_value),
+        "base_value": float(base_value),
         "top_factors": contributions[:10],
         "all_factors": contributions,
     }
@@ -105,8 +129,8 @@ def explain():
     model = load_model()
 
     # Compute SHAP values on test set
-    print("Computing SHAP values (this may take a moment)...")
-    explainer, shap_values = compute_shap_values(model, X_test)
+    print("Computing SHAP values...")
+    shap_values = compute_shap_values(model, X_test)
 
     # Generate summary plot
     plot_shap_summary(shap_values, X_test)
