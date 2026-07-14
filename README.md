@@ -4,26 +4,26 @@
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-### 👤 Customer Portal
+### Customer Portal
 - **Account Management:** Secure signup, login, and profile management for loan applicants.
 - **Loan Application:** Multi-step loan application process capturing personal, employment, and financial details.
 - **Application Tracking:** Real-time visibility into loan application status and decisions.
 
-### 💼 Analyst Dashboard
+### Analyst Dashboard
 - **Application Pipeline:** Queue of incoming loan applications requiring review.
 - **Detailed Profiles:** View complete applicant details, including credit bureau reports (simulated).
 - **Manual Decisions:** Approve, reject, or conditionally approve applications with attached notes.
 
-### 🤖 Explainable AI Risk Assessment
+### Explainable AI Risk Assessment
 - **XGBoost Risk Model:** Highly accurate machine learning model trained on demographic, financial, and credit data.
 - **SHAP Integration:** Transparent decision-making. Every prediction includes a breakdown of exactly which features positively or negatively impacted the risk score.
 - **Analyst Integration:** AI assessments are rendered directly inside the analyst's review workflow, complete with color-coded risk categories (Low, Medium, High, Very High) and probability scores.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 **Backend & Web**
 - **Node.js & Express.js:** Core web server and API routing.
@@ -44,7 +44,7 @@
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 rupya-ai/
@@ -77,7 +77,7 @@ rupya-ai/
 
 ---
 
-## 🚀 Setup & Installation
+## Setup & Installation
 
 ### Prerequisites
 - Node.js (v18+)
@@ -132,7 +132,7 @@ The application will be accessible at `http://localhost:3000`.
 
 ---
 
-## 🧠 How the AI Integration Works
+## How the AI Integration Works
 
 When an Analyst clicks **"Run AI Assessment"** on a loan application:
 1. The Express route fetches the applicant's profile, financial data, and credit history from Supabase.
@@ -145,5 +145,5 @@ When an Analyst clicks **"Run AI Assessment"** on a loan application:
 
 ---
 
-## 📄 License
+## License
 This project is proprietary and confidential. All rights reserved.
