@@ -145,12 +145,14 @@ def predict_from_cli():
         result = predict_single(input_data)
         print(json.dumps(result))
     except Exception as e:
+        import traceback
+        traceback.print_exc(file=sys.stderr)
         error_response = {
             "error": True,
             "message": str(e),
         }
         print(json.dumps(error_response))
-        sys.exit(1)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
