@@ -1,7 +1,6 @@
-# Rupya AI — AI-Powered Credit Underwriting Platform
+# AI-Powered Credit Underwriting Platform
 
-**Rupya AI** is a comprehensive, modern credit underwriting platform that combines a traditional loan origination system with advanced, explainable Artificial Intelligence (XAI). It empowers financial institutions to automate risk assessment and provides credit analysts with transparent, SHAP-driven insights into exactly *why* a loan should be approved or rejected.
-
+AI-Powered Credit Underwriting Platform is a modern decision-support system that streamlines the credit underwriting process by combining a traditional loan origination workflow with Explainable Artificial Intelligence (XAI). The platform automates credit risk assessment, generates intelligent underwriting recommendations, and provides SHAP-based explanations that help credit analysts understand the key factors behind every approval or rejection decision.
 ---
 
 ## Key Features
