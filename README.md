@@ -21,6 +21,31 @@
 - **SHAP Integration:** Transparent decision-making. Every prediction includes a breakdown of exactly which features positively or negatively impacted the risk score.
 - **Analyst Integration:** AI assessments are rendered directly inside the analyst's review workflow, complete with color-coded risk categories (Low, Medium, High, Very High) and probability scores.
 
+## Model Evaluation & Metrics
+
+The XGBoost model was evaluated on a held-out test set, achieving the following performance:
+
+- **Accuracy:** 97.14%
+- **Precision:** 97.15%
+- **Recall:** 97.14%
+- **F1 Score:** 97.13%
+- **ROC AUC:** 0.9936
+
+### Feature Importance (SHAP Summary)
+The model uses SHAP (SHapley Additive exPlanations) to provide transparent, interpretable predictions. The summary plot below shows the most impactful features (e.g., Credit Score, Total Assets, Loan Tenure) across the entire dataset:
+
+![SHAP Summary](ai/outputs/shap_summary.png)
+
+### Confusion Matrix
+This matrix demonstrates the model's high precision and recall, effectively minimizing false positives and false negatives for both Approved and Rejected applications.
+
+![Confusion Matrix](ai/outputs/confusion_matrix.png)
+
+### ROC Curve
+The Receiver Operating Characteristic curve highlights the model's excellent separability between risk classes, with an Area Under the Curve (AUC) of 0.99.
+
+![ROC Curve](ai/outputs/roc_curve.png)
+
 ---
 
 ## Technology Stack
