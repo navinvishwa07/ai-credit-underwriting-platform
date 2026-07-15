@@ -513,8 +513,12 @@ app.post('/analyst/applications/:id/run-ai', isAnalyst, async (req, res) => {
         // Call Python predict.py via child_process
         const pythonScript = path.join(__dirname, 'ai', 'src', 'predict.py');
         const fs = require('fs');
-        const condaPython = '/opt/anaconda3/bin/python3';
-        const pythonCmd = fs.existsSync(condaPython) ? condaPython : 'python3';
+        const venvPython = process.platform === 'win32'
+            ? path.join(__dirname, '.venv', 'Scripts', 'python.exe')
+            : path.join(__dirname, '.venv', 'bin', 'python');
+        const pythonCmd = fs.existsSync(venvPython)
+            ? venvPython
+            : (process.platform === 'win32' ? 'python' : 'python3');
         
         const result = await new Promise((resolve, reject) => {
             const proc = spawn(pythonCmd, [pythonScript], {
