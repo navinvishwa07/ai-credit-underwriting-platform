@@ -1,6 +1,7 @@
 # AI-Powered Credit Underwriting Platform
 
-AI-Powered Credit Underwriting Platform is a modern decision-support system that streamlines the credit underwriting process by combining a traditional loan origination workflow with Explainable Artificial Intelligence (XAI). The platform automates credit risk assessment, generates intelligent underwriting recommendations, and provides SHAP-based explanations that help credit analysts understand the key factors behind every approval or rejection decision.
+**AI-Powered Credit Underwriting Platform is a modern decision-support system that streamlines the credit underwriting process by combining a traditional loan origination workflow with Explainable Artificial Intelligence (XAI). The platform automates credit risk assessment, generates intelligent underwriting recommendations, and provides SHAP-based explanations that help credit analysts understand the key factors behind every approval or rejection decision.
+
 ---
 
 ## Key Features
