@@ -12,6 +12,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set('view engine', 'ejs');
 
+app.get('/', (req, res) => {
+  res.redirect('/customer/login');
+});
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'rupya-ai-secret-change-in-production',
     resave: false,
